@@ -1,6 +1,6 @@
 /*
  * work_wx
- * wuhen 2020/1/15.
+ * wuhen 2020/1/16.
  * Copyright (c) 2020  jianfengwuhen@126.com All Rights Reserved.
  */
 
@@ -21,9 +21,9 @@ public class FollowModel {
     private String user;                //	否	使用该联系方式的用户userID列表，在type为1时为必填，且只能有一个
     private String party;               //	否	使用该联系方式的部门id列表，只在type为2时有效
 
-    private String qr_code;
+    private String qr_code;              //
 
-    private String config_id;           //  当前配置的唯一标示
+    private String config_id;            //  当前配置的唯一标示
 
     public FollowModel(String cropId) {
         this.cropId = cropId;

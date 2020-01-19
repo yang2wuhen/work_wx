@@ -1,3 +1,9 @@
+/*
+ * work_wx
+ * wuhen 2020/1/16.
+ * Copyright (c) 2020  jianfengwuhen@126.com All Rights Reserved.
+ */
+
 package com.tencent.wework;
 
 /* sdk返回数据
@@ -29,7 +35,6 @@ typedef struct MediaData {
 
 */
 
-import com.work.wx.server.BackUpServerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
@@ -187,5 +192,6 @@ public class Finance {
             }
         }
     }
+
 
 }

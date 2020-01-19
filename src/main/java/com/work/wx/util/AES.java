@@ -1,9 +1,10 @@
 /*
- * Created by wuhen on 2019.7.25
- * Copyright © 2019 wuhen. All rights reserved.
+ * work_wx
+ * wuhen 2020/1/16.
+ * Copyright (c) 2020  jianfengwuhen@126.com All Rights Reserved.
  */
 
-package com.tencent.wework.util;
+package com.work.wx.util;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.Key;

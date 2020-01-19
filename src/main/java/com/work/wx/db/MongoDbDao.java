@@ -1,11 +1,12 @@
 /*
  * work_wx
- * wuhen 2019/12/27.
- * Copyright (c) 2019  jianfengwuhen@126.com All Rights Reserved.
+ * wuhen 2020/1/16.
+ * Copyright (c) 2020  jianfengwuhen@126.com All Rights Reserved.
  */
 
 package com.work.wx.db;
 
+import com.google.gson.internal.Primitives;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,13 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 
 
 /**
  * 描述:
  * mongoDB基础方法封装
- *
  * @author zhengql
  * @date 2018/8/9 11:01
  */
@@ -39,6 +40,18 @@ public abstract class MongoDbDao<T> {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+
+
+    public void insert(T t) {
+        this.mongoTemplate.insert(t);
+    }
+
+
+    public void insertAll(Collection<? extends T> t) {
+        this.mongoTemplate.insertAll(t);
+    }
+
 
     /***
      * 保存一个对象

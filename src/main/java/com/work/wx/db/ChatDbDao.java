@@ -6,17 +6,17 @@
 
 package com.work.wx.db;
 
+import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.FollowModel;
-import com.work.wx.controller.modle.TokenModel;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class FollowDbDao extends MongoDbDao {
+public class ChatDbDao extends MongoDbDao {
 
     @Override
-    protected Class<FollowModel> getEntityClass() {
-        return FollowModel.class;
+    protected Class<ChatModel> getEntityClass() {
+        return ChatModel.class;
     }
 
 

@@ -1,4 +1,10 @@
-package com.tencent.wework.util;
+/*
+ * work_wx
+ * wuhen 2020/1/16.
+ * Copyright (c) 2020  jianfengwuhen@126.com All Rights Reserved.
+ */
+
+package com.work.wx.util;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
