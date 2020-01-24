@@ -33,12 +33,11 @@ public class AutoBackUpTask {
     @Scheduled(fixedRate = 1000*60*5, initialDelay = 1000*10)
     public void backupWeChat() {
         ChatRecordID chatRecordID = chatRecordIdServer.getChatRecordID(new ChatRecordID(ExternalContactAccessToken.CORP_ID));
-        boolean repeat = false;
-        if (null != chatRecordID || null ==  chatRecordID.getSeq()) {
-            repeat = BackUp.getChatData(0, LIMIT) ;
-        } else {
-            repeat = BackUp.getChatData(chatRecordID.getSeq(),LIMIT);
+        long seq = 0;
+        if (null != chatRecordID && chatRecordID.getSeq() != null) {
+            seq = chatRecordID.getSeq();
         }
+        boolean repeat = BackUp.insertChatData(seq,LIMIT);
         if (repeat) {
             backupWeChat();
         }

@@ -51,7 +51,7 @@ public class ChatAPI {
     @RequestMapping(value = "/getChatData" ,method = RequestMethod.POST)
     public Tip getChatData(){
 //        List list = new BackUp().getChatData(0,1000,TIME_OUT);
-        List list = BackUp.getChatData(0,1000);
+        List list = BackUp.getChatDataList(0,1000);
         return new SuccessTip(list);
     }
 
