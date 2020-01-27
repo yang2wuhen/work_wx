@@ -10,6 +10,7 @@ import com.google.gson.internal.Primitives;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -19,6 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -83,6 +85,18 @@ public abstract class MongoDbDao<T> {
     }
 
     /**
+     * 根据条件查询集合
+     *
+     * @param object
+     * @return
+     */
+    public List<T> queryList(T object,Set noEqualsFields) {
+        Query query = getQueryByObject(object,noEqualsFields);
+        return mongoTemplate.find(query, this.getEntityClass());
+    }
+
+
+    /**
      * 根据条件查询只返回一个文档
      *
      * @param object
@@ -93,6 +107,19 @@ public abstract class MongoDbDao<T> {
         logger.debug(query.toString());
         return mongoTemplate.findOne(query, this.getEntityClass());
     }
+
+    /**
+     * 根据条件查询只返回一个文档
+     *
+     * @param object
+     * @return
+     */
+    public T queryOneDesc(T object,String field) {
+        Query query = getQueryByObjectDesc(object,field);
+        logger.debug(query.toString());
+        return mongoTemplate.findOne(query, this.getEntityClass());
+    }
+
 
     /***
      * 根据条件分页查询
@@ -207,6 +234,30 @@ public abstract class MongoDbDao<T> {
         return query;
     }
 
+
+
+    private Query getQueryByObject(T object,Set noEqualsFields) {
+        Query query = new Query();
+        String[] fileds = getFiledName(object);
+        Criteria criteria = new Criteria();
+        for (int i = 0; i < fileds.length; i++) {
+            String filedName = (String) fileds[i];
+            if (filedName.equals("Fields") || filedName.equals("Sort")) {
+                continue;
+            }
+            Object filedValue = getFieldValueByName(filedName, object);
+            if (filedValue != null) {
+                if (noEqualsFields.contains(fileds)) {
+                    criteria.and(filedName).ne(filedValue);
+                } else {
+                    criteria.and(filedName).is(filedValue);
+                }
+            }
+        }
+        query.addCriteria(criteria);
+        return query;
+    }
+
     /**
      * 将查询条件对象转换为update
      *
@@ -259,5 +310,29 @@ public abstract class MongoDbDao<T> {
             return null;
         }
     }
+
+
+
+    private Query getQueryByObjectDesc(T object,String field) {
+        Query query = new Query();
+        String[] fileds = getFiledName(object);
+        Criteria criteria = new Criteria();
+        for (int i = 0; i < fileds.length; i++) {
+            String filedName = (String) fileds[i];
+            if (filedName.equals("Fields") || filedName.equals("Sort")) {
+                continue;
+            }
+            Object filedValue = getFieldValueByName(filedName, object);
+            if (filedValue != null) {
+                criteria.and(filedName).is(filedValue);
+            }
+        }
+        query.addCriteria(criteria);
+        query.with(Sort.by(Sort.Order.desc(field)));
+        return query;
+    }
+
+
+
 }
 

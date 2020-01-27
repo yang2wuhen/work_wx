@@ -35,25 +35,25 @@ public class ChatAPI {
 //    }
 
 
-    @ApiOperation("获取加密归档记录")
-    @ResponseBody
-    @RequestMapping(value = "/getEncryptChatData" ,method = RequestMethod.POST)
-    public Tip getEncryptChatData(){
-//        String content = new BackUp().getEncryptChatData(0,1000,TIME_OUT);
-        String content = BackUp.getEncryptChatData(0,1000);
-
-        return new SuccessTip(content);
-    }
-
-
-    @ApiOperation("获取归档记录")
-    @ResponseBody
-    @RequestMapping(value = "/getChatData" ,method = RequestMethod.POST)
-    public Tip getChatData(){
-//        List list = new BackUp().getChatData(0,1000,TIME_OUT);
-        List list = BackUp.getChatDataList(0,1000);
-        return new SuccessTip(list);
-    }
+//    @ApiOperation("获取加密归档记录")
+//    @ResponseBody
+//    @RequestMapping(value = "/getEncryptChatData" ,method = RequestMethod.POST)
+//    public Tip getEncryptChatData(){
+////        String content = new BackUp().getEncryptChatData(0,1000,TIME_OUT);
+//        String content = BackUp.getEncryptChatData(0,1000);
+//
+//        return new SuccessTip(content);
+//    }
+//
+//
+//    @ApiOperation("获取归档记录")
+//    @ResponseBody
+//    @RequestMapping(value = "/getChatData" ,method = RequestMethod.POST)
+//    public Tip getChatData(){
+////        List list = new BackUp().getChatData(0,1000,TIME_OUT);
+//        List list = BackUp.getChatDataList(0,1000);
+//        return new SuccessTip(list);
+//    }
 
 
 

@@ -7,9 +7,10 @@
 package com.work.wx.controller.modle;
 
 
-public class ChatModel {
+public class ChatModel extends BaseModel{
 
     private String corpId;
+    private Long seq;
 
     private String msgtype;     // 文本消息为：text。String类型  图片消息为：image。String类型  撤回消息为：revoke。String类型
                                 // 同意消息为：agree，不同意消息为：disagree。String类型  语音消息为：voice。String类型  视频消息为：video。String类型
@@ -96,6 +97,7 @@ public class ChatModel {
     private String attendeename;    //	日程参与人
     private String place;           //	日程地点
 
+    private boolean mark;           //  是否已经同步了媒体数据
 
     public String getMsgtype() {
         return msgtype;
@@ -569,10 +571,35 @@ public class ChatModel {
         this.place = place;
     }
 
+    public String getCorpId() {
+        return corpId;
+    }
+
+    public void setCorpId(String corpId) {
+        this.corpId = corpId;
+    }
+
+    public Long getSeq() {
+        return seq;
+    }
+
+    public void setSeq(Long seq) {
+        this.seq = seq;
+    }
+
+    public boolean isMark() {
+        return mark;
+    }
+
+    public void setMark(boolean mark) {
+        this.mark = mark;
+    }
+
     @Override
     public String toString() {
         return "ChatModel{" +
                 "corpId='" + corpId + '\'' +
+                ", seq=" + seq +
                 ", msgtype='" + msgtype + '\'' +
                 ", pre_msgid='" + pre_msgid + '\'' +
                 ", msgid='" + msgid + '\'' +
@@ -632,6 +659,25 @@ public class ChatModel {
                 ", creatorname='" + creatorname + '\'' +
                 ", attendeename='" + attendeename + '\'' +
                 ", place='" + place + '\'' +
-                '}';
+                ", mark=" + mark +
+                ", _id='" + _id + '\'' +
+                "} " + super.toString();
     }
+
+    public ChatModel(String corpId) {
+        this.corpId = corpId;
+    }
+
+
+    public ChatModel(String corpId, Long seq) {
+        this.corpId = corpId;
+        this.seq = seq;
+    }
+
+    public ChatModel() {
+    }
+
+
+
+
 }

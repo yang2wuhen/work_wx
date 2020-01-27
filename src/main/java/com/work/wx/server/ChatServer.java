@@ -6,9 +6,11 @@
 
 package com.work.wx.server;
 
-import com.tencent.wework.ChatModel;
+import com.work.wx.controller.modle.ChatDataModel;
+import com.work.wx.controller.modle.ChatModel;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ChatServer {
 
@@ -16,5 +18,16 @@ public interface ChatServer {
 
     public void updateChat(List<ChatModel> chatModels);
 
+    public void updateChat(ChatModel queryChatModel,ChatModel chatModel);
+
+    public ChatDataModel getChatData(ChatDataModel chatDataModel);
+
+    public ChatModel getChat(ChatModel chatModel);
+
+    public void updateInsertChatData(ChatDataModel chatDataModel,ChatDataModel updateChatDataModel);
+
+    public void insertChatData(ChatDataModel chatDataModel);
+
+    public List<ChatModel> getChat(ChatModel chatModel, Set fields);
 
 }
