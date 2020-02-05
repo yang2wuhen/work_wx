@@ -104,7 +104,6 @@ public abstract class MongoDbDao<T> {
      */
     public T queryOne(T object) {
         Query query = getQueryByObject(object);
-        logger.debug(query.toString());
         return mongoTemplate.findOne(query, this.getEntityClass());
     }
 
@@ -116,7 +115,6 @@ public abstract class MongoDbDao<T> {
      */
     public T queryOneDesc(T object,String field) {
         Query query = getQueryByObjectDesc(object,field);
-        logger.debug(query.toString());
         return mongoTemplate.findOne(query, this.getEntityClass());
     }
 
@@ -301,33 +299,26 @@ public abstract class MongoDbDao<T> {
      * @return
      */
     private static Object getFieldValueByName(String fieldName, Object o) {
+        String e = fieldName.substring(0, 1).toUpperCase();
         try {
-            String e = fieldName.substring(0, 1).toUpperCase();
             String getter = "get" + e + fieldName.substring(1);
             Method method = o.getClass().getMethod(getter, new Class[0]);
             return method.invoke(o, new Object[0]);
         } catch (Exception var6) {
-            return null;
+            try {
+                String is = "is" + e + fieldName.substring(1);
+                Method method = o.getClass().getMethod(is, new Class[0]);
+                return method.invoke(o, new Object[0]);
+            } catch (Exception e1) {
+                return null;
+            }
         }
     }
 
 
 
     private Query getQueryByObjectDesc(T object,String field) {
-        Query query = new Query();
-        String[] fileds = getFiledName(object);
-        Criteria criteria = new Criteria();
-        for (int i = 0; i < fileds.length; i++) {
-            String filedName = (String) fileds[i];
-            if (filedName.equals("Fields") || filedName.equals("Sort")) {
-                continue;
-            }
-            Object filedValue = getFieldValueByName(filedName, object);
-            if (filedValue != null) {
-                criteria.and(filedName).is(filedValue);
-            }
-        }
-        query.addCriteria(criteria);
+        Query query = getQueryByObject(object);
         query.with(Sort.by(Sort.Order.desc(field)));
         return query;
     }

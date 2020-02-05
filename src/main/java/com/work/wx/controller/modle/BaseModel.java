@@ -6,16 +6,13 @@
 
 package com.work.wx.controller.modle;
 
+import org.springframework.data.annotation.Id;
+
 import java.io.Serializable;
 
 public class BaseModel implements Serializable {
-    public String _id;
 
-    public String get_id() {
-        return _id;
-    }
 
-    public void set_id(String _id) {
-        this._id = _id;
-    }
+
+
 }

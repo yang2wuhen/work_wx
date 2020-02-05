@@ -30,6 +30,7 @@ public class ChatServerImpl implements ChatServer {
         this.chatDbDao = chatDbDao;
     }
 
+    @Autowired
     public void setChatDataDbDao(ChatDataDbDao chatDataDbDao) {
         this.chatDataDbDao = chatDataDbDao;
     }
@@ -76,10 +77,19 @@ public class ChatServerImpl implements ChatServer {
 
     @Override
     public void updateChat(ChatModel queryChatModel,ChatModel chatModel) {
-        chatDbDao.updateInsert(queryChatModel,chatModel);
+        chatDbDao.updateFirst(queryChatModel,chatModel);
     }
 
 
+    @Override
+    public void insertAll(List list) {
+        chatDbDao.insertAll(list);
+    }
+
+    @Override
+    public List<ChatModel> getChatList(ChatModel chatModel) {
+        return chatDbDao.queryList(chatModel);
+    }
 
 
 }

@@ -1,20 +1,19 @@
 /*
  * work_wx
- * wuhen 2020/1/16.
+ * wuhen 2020/2/4.
  * Copyright (c) 2020  jianfengwuhen@126.com All Rights Reserved.
  */
 
-package com.work.wx.controller.modle;
+package com.work.wx.controller.modle.subChatItem;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
-public class ChatItem {
+public class ChatModeRecordItem {
 
     private String type;	// 每条聊天记录的具体消息类型：ChatRecordText/ ChatRecordFile/ ChatRecordImage/ ChatRecordVideo/ ChatRecordLink/
                             // ChatRecordLocation ….
     private Long msgtime;   //	消息时间，utc时间，ms单位。
     private String content; //	消息内容。Json串，内容为对应类型的json。String类型
-    private Bool from_chatroom; //	是否来自群会话。Bool类型
+    private Boolean from_chatroom; //	是否来自群会话。Bool类型
 
 
     public String getType() {
@@ -41,11 +40,11 @@ public class ChatItem {
         this.content = content;
     }
 
-    public Bool getFrom_chatroom() {
+    public Boolean getFrom_chatroom() {
         return from_chatroom;
     }
 
-    public void setFrom_chatroom(Bool from_chatroom) {
+    public void setFrom_chatroom(Boolean from_chatroom) {
         this.from_chatroom = from_chatroom;
     }
 

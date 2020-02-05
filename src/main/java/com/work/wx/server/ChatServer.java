@@ -16,6 +16,8 @@ public interface ChatServer {
 
     public void insert(ChatModel chatModel);
 
+    public void insertAll(List list);
+
     public void updateChat(List<ChatModel> chatModels);
 
     public void updateChat(ChatModel queryChatModel,ChatModel chatModel);
@@ -29,5 +31,8 @@ public interface ChatServer {
     public void insertChatData(ChatDataModel chatDataModel);
 
     public List<ChatModel> getChat(ChatModel chatModel, Set fields);
+
+    public List<ChatModel> getChatList(ChatModel chatModel);
+
 
 }

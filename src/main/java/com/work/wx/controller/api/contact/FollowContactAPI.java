@@ -148,7 +148,7 @@ public class FollowContactAPI {
 
 
 
-    @ApiOperation("获取企业已配置的「联系我」方式")
+    @ApiOperation("删除企业已配置的「联系我」方式")
     @ResponseBody
     @RequestMapping(value = "/delFollowWayById",method = RequestMethod.POST)
     public Tip delFollowWayById(@RequestParam String configId) {

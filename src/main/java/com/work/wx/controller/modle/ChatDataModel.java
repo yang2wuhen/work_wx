@@ -12,7 +12,7 @@ public class ChatDataModel extends BaseModel{
     private String sdkField;
     private byte[] file;
     private boolean isExit;
-
+    private String cropId;
 
     public String getSdkField() {
         return sdkField;
@@ -38,7 +38,16 @@ public class ChatDataModel extends BaseModel{
         isExit = exit;
     }
 
-    public ChatDataModel(String sdkField) {
+    public ChatDataModel(String cropId, String sdkField) {
+        this.cropId = cropId;
         this.sdkField = sdkField;
+    }
+
+    public String getCropId() {
+        return cropId;
+    }
+
+    public void setCropId(String cropId) {
+        this.cropId = cropId;
     }
 }
