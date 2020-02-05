@@ -39,7 +39,9 @@ public class AutoBackUpTask {
     @Async
     @Scheduled(fixedRate = 1000*60*5, initialDelay = 1000*10)
     public void backupWeChat() {
-        ChatModel chatModel = chatServer.getChat(new ChatModel(BackUp.CROP_ID));
+        ChatModel queryChatModel = new ChatModel(BackUp.CROP_ID);
+        queryChatModel.setMark(null);
+        ChatModel chatModel = chatServer.getChat(queryChatModel);
         long seq = 0;
         if (null != chatModel && chatModel.getSeq() != null) {
             seq = chatModel.getSeq();

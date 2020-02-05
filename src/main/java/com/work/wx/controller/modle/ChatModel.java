@@ -31,7 +31,7 @@ public class ChatModel extends BaseModel {
     private Long msgtime;       //	消息发送时间戳，utc时间，ms单位。
 
 
-    private boolean mark;           //  是否已经同步了媒体数据
+    private Boolean mark;           //  是否已经同步了媒体数据
 
     private ChatModelText text;    //文本类型
     private ChatModelImage image;   //图片消息为
@@ -129,15 +129,13 @@ public class ChatModel extends BaseModel {
         this.seq = seq;
     }
 
-    public boolean isMark() {
+    public Boolean isMark() {
         return mark;
     }
 
-    public void setMark(boolean mark) {
+    public void setMark(Boolean mark) {
         this.mark = mark;
     }
-
-
 
 
     public ChatModel(String corpId) {
