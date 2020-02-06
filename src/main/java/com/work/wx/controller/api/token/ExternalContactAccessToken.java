@@ -7,6 +7,7 @@
 package com.work.wx.controller.api.token;
 
 import com.google.gson.Gson;
+import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.TokenModel;
 import com.work.wx.server.TokenServer;
 import okhttp3.OkHttpClient;
@@ -14,24 +15,22 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ExternalContactAccessToken {
     private final static Logger logger = LoggerFactory.getLogger(ExternalContactAccessToken.class);
     public static final int EXTERNAL_CONTACT_TOKEN_TYPE = 2;
-
     public static final String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/gettoken";
-    public static final String CORP_ID = "ww834fad03c1c86344";
-    public static final String SECRET = "6xYZIhkf2KPrIqfjU9xvZ1IUlrWERgXRCo24Vnz88zE";
 
-    public String getExternalContactAccessToken(TokenServer tokenServer) {
-        TokenModel tokenModel = tokenServer.getTokenModel(new TokenModel(CORP_ID,EXTERNAL_CONTACT_TOKEN_TYPE));
+    public String getExternalContactAccessToken(TokenServer tokenServer,CustomConfig customConfig) {
+        TokenModel tokenModel = tokenServer.getTokenModel(new TokenModel(customConfig.getCorp(),EXTERNAL_CONTACT_TOKEN_TYPE));
         if (null != tokenModel) {
             if (tokenModel.getLoseTime() > System.currentTimeMillis()) {
                 return tokenModel.getAccess_token();
             }
         }
-        boolean status = requestToken(tokenServer);
-        return status ? getExternalContactAccessToken(tokenServer) : "";
+        boolean status = requestToken(tokenServer,customConfig);
+        return status ? getExternalContactAccessToken(tokenServer,customConfig) : "";
     }
 
 
@@ -42,8 +41,8 @@ public class ExternalContactAccessToken {
 
 
 
-    private boolean requestToken(TokenServer tokenServer) {
-        String url = BASE_ADDRESS + "?" + "corpid=" + CORP_ID +"&" + "corpsecret=" + SECRET;
+    private boolean requestToken(TokenServer tokenServer,CustomConfig customConfig) {
+        String url = BASE_ADDRESS + "?" + "corpid=" + customConfig.getCorp() +"&" + "corpsecret=" + customConfig.getExternalContactSecret();
         try {
             Response response = new OkHttpClient().newCall(new Request.Builder().url(url).get().build()).execute();
             if (response.code() == 200) {
@@ -51,9 +50,9 @@ public class ExternalContactAccessToken {
                 if (tokenModel.getErrcode() == 0) {
                     logger.debug(tokenModel.toString());
                     tokenModel.setLoseTime(System.currentTimeMillis() + tokenModel.getExpires_in() * 1000);
-                    tokenModel.setCorpId(CORP_ID);
+                    tokenModel.setCorpId(customConfig.getCorp());
                     tokenModel.setToken_type(EXTERNAL_CONTACT_TOKEN_TYPE);
-                    setExternalContactAcessToken(new TokenModel(CORP_ID,EXTERNAL_CONTACT_TOKEN_TYPE),tokenModel,tokenServer);
+                    setExternalContactAcessToken(new TokenModel(customConfig.getCorp(),EXTERNAL_CONTACT_TOKEN_TYPE),tokenModel,tokenServer);
                     return true;
                 }
             }

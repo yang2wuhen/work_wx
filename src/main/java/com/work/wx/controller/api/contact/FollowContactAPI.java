@@ -9,6 +9,7 @@ package com.work.wx.controller.api.contact;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.modle.FollowModel;
@@ -38,6 +39,12 @@ public class FollowContactAPI {
 
     private TokenServer tokenServer;
     private FollowServer followServer;
+    private CustomConfig customConfig;
+
+    @Autowired
+    public void setCustomConfig(CustomConfig customConfig) {
+        this.customConfig = customConfig;
+    }
 
     @Autowired
     public void setTokenServer(TokenServer tokenServer) {
@@ -51,7 +58,7 @@ public class FollowContactAPI {
 
 
     private String getToken() {
-        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer);
+        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,customConfig);
     }
 
 
@@ -70,7 +77,7 @@ public class FollowContactAPI {
     @ResponseBody
     @RequestMapping(value = "/getFollowWay",method = RequestMethod.POST)
     public Tip getFollowWay() {
-        List followModels = followServer.getAllFollowConfig(new FollowModel(ExternalContactAccessToken.CORP_ID));
+        List followModels = followServer.getAllFollowConfig(new FollowModel(customConfig.getCorp()));
         if (null != followModels && followModels.size() > 0) {
             return new SuccessTip(followModels);
         }
@@ -92,8 +99,8 @@ public class FollowContactAPI {
                 if (code == 0) {
                     String configId = JsonParser.parseString(result).getAsJsonObject().get("config_id").getAsString();
                     followModel.setConfig_id(configId);
-                    followModel.setCropId(ExternalContactAccessToken.CORP_ID);
-                    boolean flag = followServer.updateFollowConfig(new FollowModel(ExternalContactAccessToken.CORP_ID),followModel) > 0;
+                    followModel.setCropId(customConfig.getCorp());
+                    boolean flag = followServer.updateFollowConfig(new FollowModel(customConfig.getCorp()),followModel) > 0;
                     if (flag) {
                         return  new SuccessTip(followModel);
                     }
@@ -120,8 +127,8 @@ public class FollowContactAPI {
                 if (code == 0) {
                     String configId = JsonParser.parseString(result).getAsJsonObject().get("config_id").getAsString();
                     followModel.setConfig_id(configId);
-                    followModel.setCropId(ExternalContactAccessToken.CORP_ID);
-                    boolean flag = followServer.updateFollowConfig(new FollowModel(ExternalContactAccessToken.CORP_ID,
+                    followModel.setCropId(customConfig.getCorp());
+                    boolean flag = followServer.updateFollowConfig(new FollowModel(customConfig.getCorp(),
                             followModel.getConfig_id()),followModel) > 0;
                     if (flag) {
                         return  new SuccessTip(followModel);

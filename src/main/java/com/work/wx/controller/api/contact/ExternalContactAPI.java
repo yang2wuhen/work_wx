@@ -7,6 +7,7 @@
 package com.work.wx.controller.api.contact;
 
 import com.google.gson.Gson;
+import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
@@ -40,6 +41,12 @@ public class ExternalContactAPI {
     private final static Logger logger = LoggerFactory.getLogger(ExternalContactAPI.class);
 
     private TokenServer tokenServer;
+    private CustomConfig customConfig;
+
+    @Autowired
+    public void setCustomConfig(CustomConfig customConfig) {
+        this.customConfig = customConfig;
+    }
 
     @Autowired
     public void setTokenServer(TokenServer tokenServer) {
@@ -47,7 +54,7 @@ public class ExternalContactAPI {
     }
 
     private String getToken() {
-        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer);
+        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,customConfig);
     }
 
 

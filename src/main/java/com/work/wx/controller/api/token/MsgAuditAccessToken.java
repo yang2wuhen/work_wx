@@ -18,33 +18,33 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-public class ApplicationAccessToken {
-    private final static Logger logger = LoggerFactory.getLogger(ApplicationAccessToken.class);
-    public static final int CONTACT_TOKEN_TYPE = 3;
+public class MsgAuditAccessToken {
+    private final static Logger logger = LoggerFactory.getLogger(MsgAuditAccessToken.class);
+    public static final int MSG_AUDIT_TOKEN_TYPE = 4;
+
     public static final String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/gettoken";
 
-
-    public String getApplicationAccessToken(TokenServer tokenServer, CustomConfig customConfig) {
-        TokenModel tokenModel = tokenServer.getTokenModel(new TokenModel(customConfig.getCorp(),CONTACT_TOKEN_TYPE));
+    public String getMSGAUDITAccessToken(TokenServer tokenServer,CustomConfig customConfig) {
+        TokenModel tokenModel = tokenServer.getTokenModel(new TokenModel(customConfig.getCorp(),MSG_AUDIT_TOKEN_TYPE));
         if (null != tokenModel) {
             if (tokenModel.getLoseTime() > System.currentTimeMillis()) {
                 return tokenModel.getAccess_token();
             }
         }
         boolean status = requestContactToken(tokenServer,customConfig);
-        return status ? getApplicationAccessToken(tokenServer,customConfig) : "";
+        return status ? getMSGAUDITAccessToken(tokenServer,customConfig) : "";
     }
 
 
 
-    private boolean setApplicationAcessToken(TokenModel queryModel,TokenModel tokenModel,TokenServer tokenServer) {
+    private boolean setMSGAUDITAccessToken(TokenModel queryModel,TokenModel tokenModel,TokenServer tokenServer) {
         return tokenServer.updateInsertToken(queryModel,tokenModel) > 0;
     }
 
 
 
     private boolean requestContactToken(TokenServer tokenServer,CustomConfig customConfig) {
-        String url = BASE_ADDRESS + "?" + "corpid=" + customConfig.getCorp() +"&" + "corpsecret=" + customConfig.getApplicationSecret();
+        String url = BASE_ADDRESS + "?" + "corpid=" + customConfig.getCorp() +"&" + "corpsecret=" + customConfig.getAuditSecret();
         try {
             Response response = new OkHttpClient().newCall(new Request.Builder().url(url).get().build()).execute();
             if (response.code() == 200) {
@@ -53,8 +53,8 @@ public class ApplicationAccessToken {
                     logger.debug(tokenModel.toString());
                     tokenModel.setLoseTime(System.currentTimeMillis() + tokenModel.getExpires_in() * 1000);
                     tokenModel.setCorpId(customConfig.getCorp());
-                    tokenModel.setToken_type(CONTACT_TOKEN_TYPE);
-                    setApplicationAcessToken(new TokenModel(customConfig.getCorp(),CONTACT_TOKEN_TYPE),tokenModel,tokenServer);
+                    tokenModel.setToken_type(MSG_AUDIT_TOKEN_TYPE);
+                    setMSGAUDITAccessToken(new TokenModel(customConfig.getCorp(),MSG_AUDIT_TOKEN_TYPE),tokenModel,tokenServer);
                     return true;
                 }
             }

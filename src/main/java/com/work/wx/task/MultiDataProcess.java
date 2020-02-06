@@ -6,6 +6,7 @@
 
 package com.work.wx.task;
 
+import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.server.ChatServer;
 import org.slf4j.Logger;
@@ -17,10 +18,10 @@ import java.util.List;
 public class MultiDataProcess {
     private final static Logger logger = LoggerFactory.getLogger(MultiDataProcess.class);
 
-    public void FileTypeProcess(ChatServer chatServer) {
+    public void FileTypeProcess(ChatServer chatServer, CustomConfig customConfig) {
         String mediaType[] = new String[] {"image","voice","video","file","emotion"};
         for (String type : mediaType) {
-            ChatModel chatModel = new ChatModel(BackUp.CROP_ID);
+            ChatModel chatModel = new ChatModel(customConfig.getCorp());
             chatModel.setMark(false);
             chatModel.setMsgtype(type);
             List list = chatServer.getChatList(chatModel);
@@ -47,10 +48,10 @@ public class MultiDataProcess {
                             sdkFileid = model.getEmotion().getSdkfileid();
                             break;
                     }
-                    boolean flag = BackUp.getMediaData(chatServer,"", sdkFileid);
+                    boolean flag = BackUp.getMediaData(chatServer,customConfig,"", sdkFileid);
                     if (flag) {
                         model.setMark(true);
-                        ChatModel queryModel = new ChatModel(BackUp.CROP_ID);
+                        ChatModel queryModel = new ChatModel(customConfig.getCorp());
                         queryModel.setMsgid(model.getMsgid());
                         chatServer.updateChat(queryModel, model);
                     }

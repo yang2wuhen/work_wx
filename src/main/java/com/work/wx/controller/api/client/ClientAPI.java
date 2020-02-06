@@ -7,6 +7,7 @@
 package com.work.wx.controller.api.client;
 
 import com.google.gson.JsonObject;
+import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ApplicationAccessToken;
 import com.work.wx.controller.api.token.ContactAccessToken;
@@ -29,6 +30,12 @@ public class ClientAPI {
     private final static Logger logger = LoggerFactory.getLogger(ClientAPI.class);
 
     private TokenServer tokenServer;
+    private CustomConfig customConfig;
+
+    @Autowired
+    public void setCustomConfig(CustomConfig customConfig) {
+        this.customConfig = customConfig;
+    }
 
     @Autowired
     public void setTokenServer(TokenServer tokenServer) {
@@ -36,11 +43,11 @@ public class ClientAPI {
     }
 
     private String getToken() {
-        return new ApplicationAccessToken().getApplicationAccessToken(tokenServer);
+        return new ApplicationAccessToken().getApplicationAccessToken(tokenServer,customConfig);
     }
 
     private String getProviderToken() {
-        return new ProviderAccessToken().getProviderAccessToken(tokenServer);
+        return new ProviderAccessToken().getProviderAccessToken(tokenServer,customConfig);
     }
 
 

@@ -7,12 +7,17 @@
 package com.work.wx.task;
 
 import com.google.gson.*;
-import com.tencent.wework.ChatModel;
 import com.tencent.wework.Finance;
+import com.work.wx.config.CustomConfig;
+import com.work.wx.controller.modle.ChatDataModel;
+import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.db.ChatDbDao;
+import com.work.wx.server.ChatServer;
 import com.work.wx.util.BackUpUtil;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,60 +28,12 @@ public class BackUp  {
     private static long sdk = 0;
     private static long timeout = 10 * 60 * 1000;
 
-
-    private static void initSDK () {
+    private static void initSDK (CustomConfig customConfig) {
         if (sdk == 0) {
             sdk = Finance.NewSdk();
-            Finance.Init(sdk,"wweb009196f1b9425a","247tQldgjRdbDZS-vguzKHHBlfpP60vMunPqS9mqpBs");
+            Finance.Init(sdk,customConfig.getCorp(),customConfig.getAuditSecret());
         }
     }
-
-
-    /**
-     * @todo
-     * @author wuhen
-     * @param seq :
-     * @param limit :
-     * @returns java.util.List
-     * @throws
-     * @date 2020/1/16 16:04
-     */
-    public static boolean getTestChatData(long seq, long limit) {
-        initSDK();
-        List list = new ArrayList();
-        long slice = Finance.NewSlice();
-        long ret = Finance.GetChatData(sdk, seq, limit, "", "",timeout,slice);
-        if (ret != 0) {
-            logger.warn("getchatdata ret " + ret);
-        } else {
-            String content = Finance.GetContentFromSlice(slice);
-            JsonArray jsonElements = JsonParser.parseString(content).getAsJsonObject().get("chatdata").getAsJsonArray();
-            if (null != jsonElements && jsonElements.size() > 0) {
-                ChatModel chatModel = null;
-                long newSlice = Finance.NewSlice();
-                for (JsonElement jsonElement : jsonElements) {
-                    try {
-                        chatModel = new Gson().fromJson(jsonElement, ChatModel.class);
-                        String key = BackUpUtil.decryptData(chatModel.getEncrypt_random_key());
-                        int i = Finance.DecryptData(sdk, key, chatModel.getEncrypt_chat_msg(), newSlice);
-                        if (i == 0) {
-                            String msg = Finance.GetContentFromSlice(newSlice);
-                            logger.debug(msg);
-                            chatModel.setEncrypt_chat_msg(msg);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    chatModel.getEncrypt_chat_msg();
-                    list.add(chatModel);
-                }
-            }
-            new ChatDbDao().insertAll(list);
-        }
-        Finance.FreeSlice(slice);
-        return list.size() == limit ? false:true;
-    }
-
 
 
     /**
@@ -88,13 +45,13 @@ public class BackUp  {
      * @throws
      * @date 2020/1/24 18:25
      */
-    public static boolean insertChatData(long seq, long limit) {
-        initSDK();
+    public static boolean insertChat(ChatServer chatServer,CustomConfig customConfig,long seq, long limit) {
+        initSDK(customConfig);
         List list = new ArrayList();
         long slice = Finance.NewSlice();
         long ret = Finance.GetChatData(sdk, seq, limit, "", "",timeout,slice);
         if (ret != 0) {
-            logger.warn("getchatdata ret " + ret);
+            logger.warn("获取存档消息 " + ret);
         } else {
             String content = Finance.GetContentFromSlice(slice);
             JsonArray jsonElements = JsonParser.parseString(content).getAsJsonObject().get("chatdata").getAsJsonArray();
@@ -103,97 +60,31 @@ public class BackUp  {
                 long newSlice = Finance.NewSlice();
                 for (JsonElement jsonElement : jsonElements) {
                     try {
-                        chatModel = new Gson().fromJson(jsonElement, ChatModel.class);
-                        String key = BackUpUtil.decryptData(chatModel.getEncrypt_random_key());
-                        int i = Finance.DecryptData(sdk, key, chatModel.getEncrypt_chat_msg(), newSlice);
+                        JsonObject jsonObject = jsonElement.getAsJsonObject();
+                        long LocalSEQ = jsonObject.get("seq").getAsLong();
+                        String key = BackUpUtil.decryptData(jsonObject.get("encrypt_random_key").getAsString());
+                        int i = Finance.DecryptData(sdk, key, jsonObject.get("encrypt_chat_msg").getAsString(), newSlice);
                         if (i == 0) {
                             String msg = Finance.GetContentFromSlice(newSlice);
+                            msg.replace("\"id\"", "table_id");
                             logger.debug(msg);
-                            chatModel.setEncrypt_chat_msg(msg);
+                            chatModel = new Gson().fromJson(msg,ChatModel.class);
+                            chatModel.setCorpId(customConfig.getCorp());
+                            chatModel.setSeq(LocalSEQ);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    chatModel.getEncrypt_chat_msg();
                     list.add(chatModel);
                 }
             }
-            new ChatDbDao().insertAll(list);
+            chatServer.insertAll(list);
         }
         Finance.FreeSlice(slice);
         return list.size() == limit ? true:false;
     }
 
 
-
-    /**
-     * @todo
-     * @author wuhen
-     * @param seq :
-     * @param limit :
-     * @returns java.util.List
-     * @throws
-     * @date 2020/1/16 16:04
-     */
-    public static List getChatDataList(long seq, long limit) {
-        initSDK();
-        List list = new ArrayList();
-        long slice = Finance.NewSlice();
-        long ret = Finance.GetChatData(sdk, seq, limit, "", "",timeout,slice);
-        if (ret != 0) {
-            logger.warn("getchatdata ret " + ret);
-        } else {
-            String content = Finance.GetContentFromSlice(slice);
-            JsonArray jsonElements = JsonParser.parseString(content).getAsJsonObject().get("chatdata").getAsJsonArray();
-            if (null != jsonElements && jsonElements.size() > 0) {
-                ChatModel chatModel = null;
-                long newSlice = Finance.NewSlice();
-                for (JsonElement jsonElement : jsonElements) {
-                    try {
-                        chatModel = new Gson().fromJson(jsonElement, ChatModel.class);
-                        String key = BackUpUtil.decryptData(chatModel.getEncrypt_random_key());
-                        int i = Finance.DecryptData(sdk, key, chatModel.getEncrypt_chat_msg(), newSlice);
-                        if (i == 0) {
-                            String msg = Finance.GetContentFromSlice(newSlice);
-                            logger.debug(msg);
-                            chatModel.setEncrypt_chat_msg(msg);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    chatModel.getEncrypt_chat_msg();
-                    list.add(chatModel);
-                }
-            }
-        }
-        Finance.FreeSlice(slice);
-        return list;
-    }
-
-    /**
-     * @todo
-     * @author wuhen
-     * @param seq :
-     * @param limit :
-     * @returns java.lang.String
-     * @throws
-     * @date 2020/1/16 16:04
-     */
-    public static String getEncryptChatData(long seq, long limit) {
-        initSDK();
-        String content = "";
-        long slice = Finance.NewSlice();
-        long ret = Finance.GetChatData(sdk, seq, limit, "", "",timeout,slice);
-        if (ret != 0) {
-            logger.warn("getchatdata ret " + ret);
-        } else {
-            content = Finance.GetContentFromSlice(slice);
-            logger.error(content);
-            logger.debug("content is " + content);
-        }
-        Finance.FreeSlice(slice);
-        return content;
-    }
 
 
     /**
@@ -205,18 +96,36 @@ public class BackUp  {
      * @throws
      * @date 2020/1/16 16:04
      */
-    public static long getMediaData(String indexbuf, String sdkField) {
-        initSDK();
-        long slice = Finance.NewSlice();
+    public static boolean getMediaData(ChatServer chatServer,CustomConfig customConfig,String indexbuf, String sdkField) {
+        initSDK(customConfig);
+        long slice = Finance.NewMediaData();
         long ret = Finance.GetMediaData(sdk, indexbuf, sdkField, "", "",timeout,slice);
         if (ret != 0) {
-            logger.error("getchatdata ret " + ret);
+            logger.warn("获取媒体数据 " + ret);
         } else {
             byte[] b = Finance.GetData(slice);
-            logger.debug("media size is  " + b.length);
+            boolean isFinish = Finance.IsMediaDataFinish(slice) > 0;
+            String outIndex = Finance.GetOutIndexBuf(slice);
+            ChatDataModel chatDataModel = new ChatDataModel(customConfig.getCorp(),sdkField);
+            ChatDataModel dataModel = chatServer.getChatData(chatDataModel);
+            if (null != dataModel) {
+                dataModel.setFile(ArrayUtils.addAll(chatDataModel.getFile(), b));
+                dataModel.setExit(isFinish);
+                chatServer.updateInsertChatData(chatDataModel,dataModel);
+            } else {
+                chatDataModel.setExit(isFinish);
+                chatDataModel.setFile(b);
+                chatServer.insertChatData(chatDataModel);
+            }
+            b = null;
+            Finance.FreeMediaData(slice);
+            if (isFinish) {
+                return true;
+            } else {
+                getMediaData(chatServer,customConfig,outIndex, sdkField);
+            }
         }
-        Finance.FreeSlice(slice);
-        return slice;
+        return false;
     }
 
 

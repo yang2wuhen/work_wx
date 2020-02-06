@@ -6,6 +6,7 @@
 
 package com.work.wx.task;
 
+import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.server.ChatServer;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ public class AutoBackUpTask {
     private final static int LIMIT = 1000;
     private final static Logger logger = LoggerFactory.getLogger(AutoBackUpTask.class);
 
-
     private ChatServer chatServer;
 
     @Autowired
@@ -28,6 +28,12 @@ public class AutoBackUpTask {
         this.chatServer = chatServer;
     }
 
+    private CustomConfig customConfig;
+
+    @Autowired
+    public void setCustomConfig(CustomConfig customConfig) {
+        this.customConfig = customConfig;
+    }
 
     /**
      * @todo 自动备份消息存档
@@ -39,7 +45,7 @@ public class AutoBackUpTask {
     @Async
     @Scheduled(fixedRate = 1000*60*5, initialDelay = 1000*10)
     public void backupWeChat() {
-        ChatModel queryChatModel = new ChatModel(BackUp.CROP_ID);
+        ChatModel queryChatModel = new ChatModel(customConfig.getCorp());
         queryChatModel.setMark(null);
         ChatModel chatModel = chatServer.getChat(queryChatModel);
         long seq = 0;
@@ -47,7 +53,7 @@ public class AutoBackUpTask {
             seq = chatModel.getSeq();
         }
         logger.debug("start backup seq start with "+seq);
-        boolean repeat = BackUp.insertChat(chatServer,seq,LIMIT);
+        boolean repeat = BackUp.insertChat(chatServer,customConfig,seq,LIMIT);
         if (repeat) {
             backupWeChat();
         }
@@ -66,7 +72,7 @@ public class AutoBackUpTask {
     @Scheduled(fixedRate = 1000*60*6, initialDelay = 1000*20)
     public void backupWeChatData() {
         MultiDataProcess multiDataProcess = new MultiDataProcess();
-        multiDataProcess.FileTypeProcess(chatServer);
+        multiDataProcess.FileTypeProcess(chatServer,customConfig);
     }
 
 

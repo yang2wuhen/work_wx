@@ -6,6 +6,7 @@
 
 package com.work.wx.controller.api;
 
+import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.api.token.ApplicationAccessToken;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
@@ -26,18 +27,22 @@ public class WXAPI  {
     private final static Logger logger = LoggerFactory.getLogger(WXAPI.class);
 
     private TokenServer tokenServer;
+    private CustomConfig customConfig;
+    @Autowired
+    public void setCustomConfig(CustomConfig customConfig) {
+        this.customConfig = customConfig;
+    }
 
     @Autowired
     public void setTokenServer(TokenServer tokenServer) {
         this.tokenServer = tokenServer;
     }
 
-
     @ApiOperation("获取外部联系人token")
     @ResponseBody
     @RequestMapping(value = "/getExternalContactWorkWXToken",method = RequestMethod.POST)
     public Tip getWorkWXToken() {
-        String accessToken = new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer);
+        String accessToken = new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,customConfig);
         return new SuccessTip(accessToken);
     }
 
@@ -45,7 +50,7 @@ public class WXAPI  {
     @ResponseBody
     @RequestMapping(value = "/getContactWXToken",method = RequestMethod.POST)
     public Tip getWorkWXContactToken() {
-        String accessToken = new ContactAccessToken().getContactAccessToken(tokenServer);
+        String accessToken = new ContactAccessToken().getContactAccessToken(tokenServer,customConfig);
         return new SuccessTip(accessToken);
     }
 
@@ -54,7 +59,7 @@ public class WXAPI  {
     @ResponseBody
     @RequestMapping(value = "/getApplicationWXToken",method = RequestMethod.POST)
     public Tip getApplicationWXToken() {
-        String accessToken = new ApplicationAccessToken().getApplicationAccessToken(tokenServer);
+        String accessToken = new ApplicationAccessToken().getApplicationAccessToken(tokenServer,customConfig);
         return new SuccessTip(accessToken);
     }
 
@@ -63,7 +68,7 @@ public class WXAPI  {
     @ResponseBody
     @RequestMapping(value = "/getProviderWXToken",method = RequestMethod.POST)
     public Tip getProviderWXToken() {
-        String accessToken = new ProviderAccessToken().getProviderAccessToken(tokenServer);
+        String accessToken = new ProviderAccessToken().getProviderAccessToken(tokenServer,customConfig);
         return new SuccessTip(accessToken);
     }
 

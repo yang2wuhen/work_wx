@@ -115,6 +115,7 @@ public abstract class MongoDbDao<T> {
      */
     public T queryOneDesc(T object,String field) {
         Query query = getQueryByObjectDesc(object,field);
+        logger.debug(query.toString());
         return mongoTemplate.findOne(query, this.getEntityClass());
     }
 

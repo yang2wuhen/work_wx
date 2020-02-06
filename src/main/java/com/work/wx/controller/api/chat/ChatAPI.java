@@ -7,6 +7,7 @@
 package com.work.wx.controller.api.chat;
 
 import com.google.gson.JsonObject;
+import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.api.token.MsgAuditAccessToken;
@@ -32,6 +33,12 @@ public class ChatAPI {
 
     private TokenServer tokenServer;
     private ChatServer chatServer;
+    private CustomConfig customConfig;
+
+    @Autowired
+    public void setCustomConfig(CustomConfig customConfig) {
+        this.customConfig = customConfig;
+    }
 
     @Autowired()
     public void setChatServer(ChatServer chatServer) {
@@ -43,7 +50,7 @@ public class ChatAPI {
     }
 
     private String getToken() {
-        return new MsgAuditAccessToken().getMSGAUDITAccessToken(tokenServer);
+        return new MsgAuditAccessToken().getMSGAUDITAccessToken(tokenServer,customConfig);
     }
 
 
