@@ -34,11 +34,9 @@ public class ExternalContactAccessToken {
     }
 
 
-
     private boolean setExternalContactAcessToken(TokenModel queryModel,TokenModel tokenModel,TokenServer tokenServer) {
         return tokenServer.updateInsertToken(queryModel,tokenModel) > 0;
     }
-
 
 
     private boolean requestToken(TokenServer tokenServer,CustomConfig customConfig) {

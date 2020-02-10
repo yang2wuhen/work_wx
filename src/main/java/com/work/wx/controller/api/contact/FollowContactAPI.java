@@ -72,7 +72,6 @@ public class FollowContactAPI {
     }
 
 
-
     @ApiOperation("获取企业已配置的「联系我」方式")
     @ResponseBody
     @RequestMapping(value = "/getFollowWay",method = RequestMethod.POST)
@@ -83,7 +82,6 @@ public class FollowContactAPI {
         }
         return new ErrorTip(0);
     }
-
 
 
     @ApiOperation("配置客户联系「联系我」方式")
@@ -164,6 +162,7 @@ public class FollowContactAPI {
         json.addProperty("config_id", configId);
         return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(),json.toString());
     }
+
 
 
 

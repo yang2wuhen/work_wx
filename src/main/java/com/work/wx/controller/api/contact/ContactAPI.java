@@ -114,5 +114,32 @@ public class ContactAPI {
 
 
 
+    /**
+     * @todo 获取部门成员
+     * @author wuhen
+     * @param department_id :获取的部门id
+     * @param fetch_child : 是否递归获取子部门下面的成员：1-递归获取，0-只获取本部门
+     * @returns com.work.wx.tips.Tip
+     * @throws
+     * @date 2019/12/26 15:13
+     */
+    @ApiOperation("获取部门成员详情")
+    @ResponseBody
+    @RequestMapping(value = "/getList",method = RequestMethod.POST)
+    public Tip getList(@RequestParam("department_id") String department_id,@RequestParam("fetch_child") int fetch_child) {
+        String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
+        ParameterMap parameterMap = new ParameterMap();
+        parameterMap.put("department_id",department_id);
+        parameterMap.put("fetch_child",fetch_child);
+        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+    }
+
+
+
+
+
+
+
+
 
 }
