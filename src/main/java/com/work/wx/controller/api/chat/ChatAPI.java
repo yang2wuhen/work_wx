@@ -9,12 +9,9 @@ package com.work.wx.controller.api.chat;
 import com.google.gson.JsonObject;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
-import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.api.token.MsgAuditAccessToken;
 import com.work.wx.server.ChatServer;
 import com.work.wx.server.TokenServer;
-import com.work.wx.task.BackUp;
-import com.work.wx.tips.SuccessTip;
 import com.work.wx.tips.Tip;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController

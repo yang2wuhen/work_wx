@@ -48,7 +48,7 @@ public class MultiDataProcess {
                             sdkFileid = model.getEmotion().getSdkfileid();
                             break;
                     }
-                    boolean flag = BackUp.getMediaData(chatServer,customConfig,"", sdkFileid);
+                    boolean flag = AuditBackUpUtil.getMediaData(chatServer,customConfig,"", sdkFileid);
                     if (flag) {
                         model.setMark(true);
                         ChatModel queryModel = new ChatModel(customConfig.getCorp());

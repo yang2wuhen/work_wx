@@ -11,20 +11,17 @@ import com.tencent.wework.Finance;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.ChatDataModel;
 import com.work.wx.controller.modle.ChatModel;
-import com.work.wx.db.ChatDbDao;
 import com.work.wx.server.ChatServer;
-import com.work.wx.util.BackUpUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class BackUp  {
-    private final static Logger logger = LoggerFactory.getLogger(BackUp.class);
+public class AuditBackUpUtil {
+    private final static Logger logger = LoggerFactory.getLogger(AuditBackUpUtil.class);
     private static long sdk = 0;
     private static long timeout = 10 * 60 * 1000;
 
@@ -62,7 +59,7 @@ public class BackUp  {
                     try {
                         JsonObject jsonObject = jsonElement.getAsJsonObject();
                         long LocalSEQ = jsonObject.get("seq").getAsLong();
-                        String key = BackUpUtil.decryptData(jsonObject.get("encrypt_random_key").getAsString());
+                        String key = com.work.wx.util.BackUpUtil.decryptData(jsonObject.get("encrypt_random_key").getAsString());
                         int i = Finance.DecryptData(sdk, key, jsonObject.get("encrypt_chat_msg").getAsString(), newSlice);
                         if (i == 0) {
                             String msg = Finance.GetContentFromSlice(newSlice);

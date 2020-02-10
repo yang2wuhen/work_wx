@@ -205,8 +205,11 @@ public abstract class MongoDbDao<T> {
     public long updateInsert(T srcObj, T targetObj){
         Query query = getQueryByObject(srcObj);
         Update update = getUpdateByObject(targetObj);
+        logger.error(query.toString());
         return this.mongoTemplate.upsert(query,update,this.getEntityClass()).getModifiedCount();
     }
+
+
 
     /**
      * 将查询条件对象转换为query

@@ -13,6 +13,7 @@ import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.ContactModel;
 import com.work.wx.server.ChatServer;
+import com.work.wx.server.ContactServer;
 import com.work.wx.server.TokenServer;
 import org.apache.catalina.util.ParameterMap;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +34,7 @@ public class AutoBackUpContactTask {
 
     private TokenServer tokenServer;
     private CustomConfig customConfig;
+    private ContactServer contactServer;
 
     @Autowired
     public void setCustomConfig(CustomConfig customConfig) {
@@ -42,6 +44,11 @@ public class AutoBackUpContactTask {
     @Autowired
     public void setTokenServer(TokenServer tokenServer) {
         this.tokenServer = tokenServer;
+    }
+
+    @Autowired
+    public void setContactServer(ContactServer contactServer) {
+        this.contactServer = contactServer;
     }
 
     private String getToken() {
@@ -56,7 +63,7 @@ public class AutoBackUpContactTask {
      * @date 2020/1/27 13:14
      */
     @Async
-    @Scheduled(fixedRate = 1000*60*5, initialDelay = 1000*30)
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*30)
     public void backupWeChat() {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
         ParameterMap parameterMap = new ParameterMap();
@@ -73,17 +80,15 @@ public class AutoBackUpContactTask {
                     ContactModel contactModel = null;
                     for (JsonElement jsonElement : jsonArray) {
                         contactModel = new Gson().fromJson(jsonElement, ContactModel.class);
+                        contactModel.setCorp(customConfig.getCorp());
                         list.add(contactModel);
                     }
-                    logger.error(" "+list.size());
+                    contactServer.insertAll(list);
                 }
             }
-            logger.error(response);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
 

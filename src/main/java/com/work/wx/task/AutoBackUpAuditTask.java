@@ -17,9 +17,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AutoBackUpTask {
+public class AutoBackUpAuditTask {
     private final static int LIMIT = 1000;
-    private final static Logger logger = LoggerFactory.getLogger(AutoBackUpTask.class);
+    private final static Logger logger = LoggerFactory.getLogger(AutoBackUpAuditTask.class);
 
     private ChatServer chatServer;
 
@@ -53,7 +53,7 @@ public class AutoBackUpTask {
             seq = chatModel.getSeq();
         }
         logger.debug("start backup seq start with "+seq);
-        boolean repeat = BackUp.insertChat(chatServer,customConfig,seq,LIMIT);
+        boolean repeat = AuditBackUpUtil.insertChat(chatServer,customConfig,seq,LIMIT);
         if (repeat) {
             backupWeChat();
         }

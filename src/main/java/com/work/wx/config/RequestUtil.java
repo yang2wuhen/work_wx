@@ -74,7 +74,6 @@ public class RequestUtil {
                 url = url + "&" + key +"=" + parameterMap.get(key);
             }
         }
-        logger.error(url);
         Response response = new OkHttpClient().newCall(new Request.Builder().url(url).get().build()).execute();
         if (response.code() == 200) {
             return response.body().string();
