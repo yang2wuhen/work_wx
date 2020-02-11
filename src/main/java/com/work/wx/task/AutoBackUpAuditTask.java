@@ -6,6 +6,8 @@
 
 package com.work.wx.task;
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.server.ChatServer;
@@ -34,6 +36,7 @@ public class AutoBackUpAuditTask {
     public void setCustomConfig(CustomConfig customConfig) {
         this.customConfig = customConfig;
     }
+
 
     /**
      * @todo 自动备份消息存档

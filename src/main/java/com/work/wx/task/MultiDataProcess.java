@@ -6,8 +6,10 @@
 
 package com.work.wx.task;
 
+import com.mongodb.client.gridfs.GridFSUploadStream;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.ChatModel;
+import com.work.wx.controller.modle.FileModel;
 import com.work.wx.server.ChatServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,35 +32,58 @@ public class MultiDataProcess {
                 Iterator iterator = list.iterator();
                 while (iterator.hasNext()) {
                     ChatModel model = (ChatModel) iterator.next();
-                    String sdkFileid = "";
-                    switch (type) {
-                        case "image":
-                            sdkFileid = model.getImage().getSdkfileid();
-                            break;
-                        case "voice":
-                            sdkFileid = model.getVoice().getSdkfileid();
-                            break;
-                        case "video":
-                            sdkFileid = model.getVideo().getSdkfileid();
-                            break;
-                        case "file":
-                            sdkFileid = model.getFile().getSdkfileid();
-                            break;
-                        case "emotion":
-                            sdkFileid = model.getEmotion().getSdkfileid();
-                            break;
-                    }
-                    boolean flag = AuditBackUpUtil.getMediaData(chatServer,customConfig,"", sdkFileid);
+                    FileModel fileModel = getFileModel(model);
+                    GridFSUploadStream uploadStream = chatServer.insertChatData(fileModel);
+                    boolean flag = AuditBackUpUtil.getMediaData(customConfig,uploadStream,"", fileModel.getFileSDKField());
                     if (flag) {
+                        logger.debug("update chat model msgId "+model.getMsgid());
                         model.setMark(true);
                         ChatModel queryModel = new ChatModel(customConfig.getCorp());
                         queryModel.setMsgid(model.getMsgid());
                         chatServer.updateChat(queryModel, model);
                     }
                 }
+                logger.debug("back up media finish");
             }
         }
     }
+
+
+
+    private FileModel getFileModel(ChatModel model) {
+        FileModel fileModel = new FileModel();
+        fileModel.setFileName(model.getMsgid());
+        fileModel.setFileType(model.getMsgtype());
+        switch (model.getMsgtype()) {
+            case "image":
+                fileModel.setLength((Long.valueOf(model.getImage().getFilesize())));
+                fileModel.setMD5(model.getImage().getMd5sum());
+                fileModel.setFileSDKField(model.getImage().getSdkfileid());
+                break;
+            case "voice":
+                fileModel.setLength(Long.valueOf(model.getVoice().getFilesize()));
+                fileModel.setMD5(model.getVoice().getMd5sum());
+                fileModel.setFileSDKField(model.getVoice().getSdkfileid());
+                break;
+            case "video":
+                fileModel.setLength(Long.valueOf(model.getVideo().getFilesize()));
+                fileModel.setMD5(model.getVideo().getMd5sum());
+                fileModel.setFileSDKField(model.getVideo().getSdkfileid());
+                break;
+            case "file":
+                fileModel.setLength(Long.valueOf(model.getFile().getFilesize()));
+                fileModel.setMD5(model.getFile().getMd5sum());
+                fileModel.setFileSDKField(model.getFile().getSdkfileid());
+                break;
+            case "emotion":
+                fileModel.setLength(model.getEmotion().getImagesize());
+                fileModel.setMD5(model.getEmotion().getMd5sum());
+                fileModel.setFileSDKField(model.getEmotion().getSdkfileid());
+                break;
+        }
+        return fileModel;
+    }
+
 
 
 }

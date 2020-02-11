@@ -7,10 +7,14 @@
 package com.work.wx.server;
 
 
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSUploadStream;
 import com.work.wx.controller.modle.ChatDataModel;
 import com.work.wx.controller.modle.ChatModel;
+import com.work.wx.controller.modle.FileModel;
 import com.work.wx.db.ChatDataDbDao;
 import com.work.wx.db.ChatDbDao;
+import com.work.wx.db.MongoGridFSDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,7 @@ public class ChatServerImpl implements ChatServer {
 
     private ChatDbDao chatDbDao;
     private ChatDataDbDao chatDataDbDao;
+    private MongoGridFSDao mongoGridFSDao;
 
     @Autowired
     public void setChatDbDao(ChatDbDao chatDbDao) {
@@ -33,6 +38,11 @@ public class ChatServerImpl implements ChatServer {
     @Autowired
     public void setChatDataDbDao(ChatDataDbDao chatDataDbDao) {
         this.chatDataDbDao = chatDataDbDao;
+    }
+
+    @Autowired
+    public void setMongoGridFSDao(MongoGridFSDao mongoGridFSDao) {
+        this.mongoGridFSDao = mongoGridFSDao;
     }
 
     @Override
@@ -91,5 +101,10 @@ public class ChatServerImpl implements ChatServer {
         return chatDbDao.queryList(chatModel);
     }
 
+
+    @Override
+    public GridFSUploadStream insertChatData(FileModel fileModel) {
+        return mongoGridFSDao.save(fileModel);
+    }
 
 }

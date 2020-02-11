@@ -7,6 +7,7 @@
 package com.work.wx.task;
 
 import com.google.gson.*;
+import com.mongodb.client.gridfs.GridFSUploadStream;
 import com.tencent.wework.Finance;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.ChatDataModel;
@@ -87,45 +88,40 @@ public class AuditBackUpUtil {
     /**
      * @todo
      * @author wuhen
+     * @param customConfig :
+     * @param gridFSUploadStream :
      * @param indexbuf :
      * @param sdkField :
-     * @returns long
+     * @returns boolean
      * @throws
-     * @date 2020/1/16 16:04
+     * @date 2020/2/11 15:15
      */
-    public static boolean getMediaData(ChatServer chatServer,CustomConfig customConfig,String indexbuf, String sdkField) {
+    public static boolean getMediaData(CustomConfig customConfig, GridFSUploadStream gridFSUploadStream,
+                                       String indexbuf, String sdkField) {
         initSDK(customConfig);
         long slice = Finance.NewMediaData();
         long ret = Finance.GetMediaData(sdk, indexbuf, sdkField, "", "",timeout,slice);
         if (ret != 0) {
             logger.warn("获取媒体数据 " + ret);
         } else {
+            logger.debug("upload media  "+sdkField);
             byte[] b = Finance.GetData(slice);
             boolean isFinish = Finance.IsMediaDataFinish(slice) > 0;
             String outIndex = Finance.GetOutIndexBuf(slice);
-            ChatDataModel chatDataModel = new ChatDataModel(customConfig.getCorp(),sdkField);
-            ChatDataModel dataModel = chatServer.getChatData(chatDataModel);
-            if (null != dataModel) {
-                dataModel.setFile(ArrayUtils.addAll(chatDataModel.getFile(), b));
-                dataModel.setExit(isFinish);
-                chatServer.updateInsertChatData(chatDataModel,dataModel);
-            } else {
-                chatDataModel.setExit(isFinish);
-                chatDataModel.setFile(b);
-                chatServer.insertChatData(chatDataModel);
-            }
+            gridFSUploadStream.write(b);
             b = null;
             Finance.FreeMediaData(slice);
             if (isFinish) {
-                return true;
+                logger.debug("upload media finish "+sdkField);
+                gridFSUploadStream.flush();
+                gridFSUploadStream.close();
             } else {
-                getMediaData(chatServer,customConfig,outIndex, sdkField);
+                getMediaData(customConfig,gridFSUploadStream,outIndex, sdkField);
             }
+            return true;
         }
         return false;
     }
-
-
 
 
 
