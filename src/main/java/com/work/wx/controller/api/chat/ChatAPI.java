@@ -13,12 +13,21 @@ import com.work.wx.controller.api.token.MsgAuditAccessToken;
 import com.work.wx.server.ChatServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.Tip;
+import com.work.wx.util.LangUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 
 @RestController
@@ -74,6 +83,26 @@ public class ChatAPI {
         jsonObject.addProperty("roomid",roomid);
         return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(), jsonObject.toString());
     }
+
+
+
+    @ApiOperation("获取会话存档图片")
+    @ResponseBody
+    @RequestMapping(value = "/getAuditImageFile",method = RequestMethod.GET,produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] getAuditFile(@RequestParam("msgId") String msgId){
+        try {
+            InputStream inputStream = chatServer.getChatFile(msgId);
+            if (null != inputStream) {
+                byte[] bytes = LangUtil.getBytes(inputStream);
+                inputStream.close();
+                return bytes;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 
 

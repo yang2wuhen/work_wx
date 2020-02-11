@@ -11,7 +11,9 @@ import com.mongodb.client.gridfs.GridFSUploadStream;
 import com.work.wx.controller.modle.ChatDataModel;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.FileModel;
+import org.bson.types.ObjectId;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -38,5 +40,7 @@ public interface ChatServer {
     public List<ChatModel> getChatList(ChatModel chatModel);
 
     public GridFSUploadStream insertChatData(FileModel fileModel);
+
+    public InputStream getChatFile(String fileName) throws Exception;
 
 }

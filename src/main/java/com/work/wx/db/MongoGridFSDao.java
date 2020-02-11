@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 
@@ -51,19 +52,10 @@ public class MongoGridFSDao {
     }
 
 
-    public void getFile(String fileName) {
-        GridFSFile file = gridFsTemplate.findOne(new Query(Criteria.where("filename").is(fileName)));
-        if(file != null){
-            GridFSDownloadStream in = gridFSBucket.openDownloadStream(file.getObjectId());
-            GridFsResource resource = new GridFsResource(file,in);
-            try {
-                InputStream inputStream = resource.getInputStream();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    public InputStream getFile(String fileName) throws Exception {
+        return gridFSBucket.openDownloadStream(fileName);
     }
+
 
 
 

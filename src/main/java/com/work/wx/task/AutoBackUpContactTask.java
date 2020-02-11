@@ -63,7 +63,7 @@ public class AutoBackUpContactTask {
      * @date 2020/1/27 13:14
      */
     @Async
-    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*30)
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60)
     public void backupWeChat() {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
         ParameterMap parameterMap = new ParameterMap();
