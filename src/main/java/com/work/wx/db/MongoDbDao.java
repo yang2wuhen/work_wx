@@ -12,6 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.mapreduce.GroupBy;
+import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -40,10 +44,17 @@ public abstract class MongoDbDao<T> {
      */
     protected abstract Class<T> getEntityClass();
 
-    @Autowired
+
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    public void setMongoTemplate(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
+    public MongoTemplate getMongoTemplate() {
+        return mongoTemplate;
+    }
 
     public void insert(T t) {
         this.mongoTemplate.insert(t);
@@ -108,7 +119,7 @@ public abstract class MongoDbDao<T> {
     }
 
     /**
-     * 根据条件查询只返回一个文档
+     * 根据条件查询降序查询
      *
      * @param object
      * @return
@@ -118,6 +129,22 @@ public abstract class MongoDbDao<T> {
         logger.debug(query.toString());
         return mongoTemplate.findOne(query, this.getEntityClass());
     }
+
+
+    /**
+     * 根据条件分组查询
+     *
+     * @param object
+     * @return
+     */
+    public List<String> queryListGroupBy(T object,String groupField,String orderField) {
+        Aggregation aggregation = Aggregation.newAggregation(
+            Aggregation.match(getCriteriaByObject(object)),
+            Aggregation.sort(Sort.Direction.DESC, orderField),
+            Aggregation.group(groupField));
+        return mongoTemplate.aggregate(aggregation, getEntityClass(),String.class ).getMappedResults();
+    }
+
 
 
     /***
@@ -233,6 +260,30 @@ public abstract class MongoDbDao<T> {
         }
         query.addCriteria(criteria);
         return query;
+    }
+
+
+    /**
+     * 将查询条件对象转换为query
+     *
+     * @param object
+     * @return
+     * @author Jason
+     */
+    private Criteria getCriteriaByObject(T object) {
+        String[] fileds = getFiledName(object);
+        Criteria criteria = new Criteria();
+        for (int i = 0; i < fileds.length; i++) {
+            String filedName = (String) fileds[i];
+            if (filedName.equals("Fields") || filedName.equals("Sort")) {
+                continue;
+            }
+            Object filedValue = getFieldValueByName(filedName, object);
+            if (filedValue != null) {
+                criteria.and(filedName).is(filedValue);
+            }
+        }
+        return criteria;
     }
 
 

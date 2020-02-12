@@ -151,6 +151,10 @@ public class ChatModel extends BaseModel {
     public ChatModel() {
     }
 
+    public ChatModel(String corpId, String from) {
+        this.corpId = corpId;
+        this.from = from;
+    }
 
     public ChatModelText getText() {
         return text;

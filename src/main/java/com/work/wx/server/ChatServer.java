@@ -27,13 +27,7 @@ public interface ChatServer {
 
     public void updateChat(ChatModel queryChatModel,ChatModel chatModel);
 
-    public ChatDataModel getChatData(ChatDataModel chatDataModel);
-
     public ChatModel getChat(ChatModel chatModel);
-
-    public void updateInsertChatData(ChatDataModel chatDataModel,ChatDataModel updateChatDataModel);
-
-    public void insertChatData(ChatDataModel chatDataModel);
 
     public List<ChatModel> getChat(ChatModel chatModel, Set fields);
 
@@ -42,5 +36,9 @@ public interface ChatServer {
     public GridFSUploadStream insertChatData(FileModel fileModel);
 
     public InputStream getChatFile(String fileName) throws Exception;
+
+    public List<ChatModel> getChatList(ChatModel chatModel,String groupByField,String orderField);
+
+    public List<ChatModel> queryChatList(String corpId,String userId,String sendId);
 
 }

@@ -7,15 +7,11 @@
 package com.work.wx.server;
 
 
-import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSUploadStream;
-import com.work.wx.controller.modle.ChatDataModel;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.FileModel;
-import com.work.wx.db.ChatDataDbDao;
 import com.work.wx.db.ChatDbDao;
 import com.work.wx.db.MongoGridFSDao;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +25,6 @@ import java.util.Set;
 public class ChatServerImpl implements ChatServer {
 
     private ChatDbDao chatDbDao;
-    private ChatDataDbDao chatDataDbDao;
     private MongoGridFSDao mongoGridFSDao;
 
     @Autowired
@@ -37,10 +32,6 @@ public class ChatServerImpl implements ChatServer {
         this.chatDbDao = chatDbDao;
     }
 
-    @Autowired
-    public void setChatDataDbDao(ChatDataDbDao chatDataDbDao) {
-        this.chatDataDbDao = chatDataDbDao;
-    }
 
     @Autowired
     public void setMongoGridFSDao(MongoGridFSDao mongoGridFSDao) {
@@ -60,26 +51,10 @@ public class ChatServerImpl implements ChatServer {
 
 
 
-    @Override
-    public void updateInsertChatData(ChatDataModel chatDataModel, ChatDataModel updateChatDataModel) {
-        chatDataDbDao.updateInsert(chatDataModel,updateChatDataModel);
-    }
-
-
-    public ChatDataModel getChatData(ChatDataModel chatDataModel) {
-        return (ChatDataModel) chatDataDbDao.queryOne(chatDataModel);
-    }
-
-
     public ChatModel getChat(ChatModel chatModel) {
         return (ChatModel)chatDbDao.queryOneDesc(chatModel, "seq");
     }
 
-
-    @Override
-    public void insertChatData(ChatDataModel chatDataModel) {
-        chatDataDbDao.insert(chatDataModel);
-    }
 
     @Override
     public List<ChatModel> getChat(ChatModel chatModel, Set fields) {
@@ -115,5 +90,13 @@ public class ChatServerImpl implements ChatServer {
         return mongoGridFSDao.getFile(fileName);
     }
 
+    @Override
+    public List<ChatModel> getChatList(ChatModel chatModel, String groupByField, String orderField) {
+        return chatDbDao.queryListGroupBy(chatModel, groupByField, orderField);
+    }
 
+    @Override
+    public List<ChatModel> queryChatList(String corpId, String userId, String sendId) {
+        return chatDbDao.queryChatList(corpId, userId, sendId);
+    }
 }
