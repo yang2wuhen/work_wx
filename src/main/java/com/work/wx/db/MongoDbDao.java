@@ -6,16 +6,11 @@
 
 package com.work.wx.db;
 
-import com.google.gson.internal.Primitives;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.mapreduce.GroupBy;
-import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -130,20 +125,6 @@ public abstract class MongoDbDao<T> {
         return mongoTemplate.findOne(query, this.getEntityClass());
     }
 
-
-    /**
-     * 根据条件分组查询
-     *
-     * @param object
-     * @return
-     */
-    public List<String> queryListGroupBy(T object,String groupField,String orderField) {
-        Aggregation aggregation = Aggregation.newAggregation(
-            Aggregation.match(getCriteriaByObject(object)),
-            Aggregation.sort(Sort.Direction.DESC, orderField),
-            Aggregation.group(groupField));
-        return mongoTemplate.aggregate(aggregation, getEntityClass(),String.class ).getMappedResults();
-    }
 
 
 
@@ -270,7 +251,7 @@ public abstract class MongoDbDao<T> {
      * @return
      * @author Jason
      */
-    private Criteria getCriteriaByObject(T object) {
+    protected Criteria getCriteriaByObject(T object) {
         String[] fileds = getFiledName(object);
         Criteria criteria = new Criteria();
         for (int i = 0; i < fileds.length; i++) {

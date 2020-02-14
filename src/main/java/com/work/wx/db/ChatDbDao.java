@@ -10,6 +10,7 @@ import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.FollowModel;
 import javafx.scene.shape.Circle;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -35,7 +36,7 @@ public class ChatDbDao extends MongoDbDao {
      * @throws
      * @date 2020/2/12 17:03
      */
-    public List<ChatModel> queryChatList(String corpId,String userId,String sendId) {
+    public List<ChatModel> queryUserChatList(String corpId,String userId,String sendId) {
         Query query = new Query();
         Criteria criteria = new Criteria();
         criteria.and("corpId").is(corpId);
@@ -49,6 +50,33 @@ public class ChatDbDao extends MongoDbDao {
     }
 
 
+
+    /**
+     * @todo
+     * @author wuhen
+     * @param chatModel :
+     * @param groupField :
+     * @param orderField :
+     * @returns java.util.List<java.lang.String>
+     * @throws
+     * @date 2020/2/13 12:19
+     */
+    public List<String> queryGroupBy(ChatModel chatModel,String groupField,String orderField) {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(getCriteriaByObject(chatModel)),
+                Aggregation.sort(Sort.Direction.DESC, orderField),
+                Aggregation.group(groupField));
+        return getMongoTemplate().aggregate(aggregation, getEntityClass(),String.class).getMappedResults();
+    }
+
+
+    public List<String> queryNotFieldGroupBy(ChatModel chatModel,String groupField,String orderField,String notField) {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(getCriteriaByObject(chatModel).and(notField).ne("").ne(null)),
+                Aggregation.sort(Sort.Direction.DESC, orderField),
+                Aggregation.group(groupField));
+        return getMongoTemplate().aggregate(aggregation, getEntityClass(),String.class).getMappedResults();
+    }
 
 
 

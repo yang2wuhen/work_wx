@@ -37,8 +37,9 @@ public interface ChatServer {
 
     public InputStream getChatFile(String fileName) throws Exception;
 
-    public List<ChatModel> getChatList(ChatModel chatModel,String groupByField,String orderField);
+    public List<ChatModel> getChatList(String corpId,String userId,String sendId);
 
-    public List<ChatModel> queryChatList(String corpId,String userId,String sendId);
+    public List<String> getUserList(ChatModel chatModel,String groupField,String orderField);
 
+    public List<String>  getRoomList(ChatModel chatModel,String groupField,String orderField,String notField);
 }

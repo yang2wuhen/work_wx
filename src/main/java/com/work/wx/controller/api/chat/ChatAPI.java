@@ -61,7 +61,6 @@ public class ChatAPI {
     }
 
 
-
     @ApiOperation("群聊获取会话同意情况")
     @ResponseBody
     @RequestMapping(value = "/checkRoomAgree",method = RequestMethod.POST)
@@ -80,7 +79,18 @@ public class ChatAPI {
         ChatModel chatModel = new ChatModel(customConfig.getCorp());
         chatModel.setRoomid("");
         chatModel.setMark(null);
-        List chatModelList = chatServer.getChatList(chatModel,"from","seq");
+        List chatModelList = chatServer.getUserList(chatModel,"from","seq");
+        return new SuccessTip(chatModelList);
+    }
+
+
+    @ApiOperation("获取群聊人员列表")
+    @ResponseBody
+    @RequestMapping(value = "/getChatRooms",method = RequestMethod.POST)
+    public Tip getChatRooms(){
+        ChatModel chatModel = new ChatModel(customConfig.getCorp());
+        chatModel.setMark(null);
+        List chatModelList = chatServer.getRoomList(chatModel,"from","seq","roomid");
         return new SuccessTip(chatModelList);
     }
 
@@ -89,13 +99,13 @@ public class ChatAPI {
     @ResponseBody
     @RequestMapping(value = "/getChatUserRecord",method = RequestMethod.POST)
     public Tip getChatUserRecord(@RequestParam("userId") String userId,@RequestParam("chatUser") String chatUser){
-        List chatModelList = chatServer.queryChatList(customConfig.getCorp(), userId, chatUser);
+        List chatModelList = chatServer.getChatList(customConfig.getCorp(), userId, chatUser);
         return new SuccessTip(chatModelList);
     }
 
 
 
-    @ApiOperation("群聊获取会话同意情况")
+    @ApiOperation("获取群会话详情")
     @ResponseBody
     @RequestMapping(value = "/getChatRoom",method = RequestMethod.POST)
     public Tip getChatRoom(@RequestParam("roomId") String roomId){

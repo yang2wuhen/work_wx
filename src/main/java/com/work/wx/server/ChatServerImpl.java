@@ -91,12 +91,20 @@ public class ChatServerImpl implements ChatServer {
     }
 
     @Override
-    public List<ChatModel> getChatList(ChatModel chatModel, String groupByField, String orderField) {
-        return chatDbDao.queryListGroupBy(chatModel, groupByField, orderField);
+    public List<ChatModel> getChatList(String corpId, String userId, String sendId) {
+        return chatDbDao.queryUserChatList(corpId, userId, sendId);
     }
 
     @Override
-    public List<ChatModel> queryChatList(String corpId, String userId, String sendId) {
-        return chatDbDao.queryChatList(corpId, userId, sendId);
+    public List<String> getUserList(ChatModel chatModel,String groupField,String orderField) {
+        return chatDbDao.queryGroupBy(chatModel,groupField,orderField);
     }
+
+
+    @Override
+    public List<String> getRoomList(ChatModel chatModel, String groupField, String orderField,String notField) {
+        return chatDbDao.queryNotFieldGroupBy(chatModel,groupField,orderField,notField);
+    }
+
+
 }
