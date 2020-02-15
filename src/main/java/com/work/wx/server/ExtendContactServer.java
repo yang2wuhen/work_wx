@@ -6,18 +6,14 @@
 
 package com.work.wx.server;
 
-import com.work.wx.controller.modle.ChatDataModel;
-import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.ContactModel;
 import com.work.wx.controller.modle.ExtendContactModel;
 
 import java.util.List;
-import java.util.Set;
 
-public interface ContactServer {
+public interface ExtendContactServer {
 
 
-    public void insertAll(List<ContactModel> list);
-
+    public void insertUpdate(ExtendContactModel queryExtendContactModel, ExtendContactModel extendContactModel);
 
 }

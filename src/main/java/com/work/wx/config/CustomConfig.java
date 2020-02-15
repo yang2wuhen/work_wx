@@ -14,12 +14,20 @@ import org.springframework.stereotype.Component;
 public class CustomConfig {
 
     private String corp;
+    private String adminId;
     private String applicationSecret;
     private String contactSecret;
     private String externalContactSecret;
     private String providerSecret;
     private String auditSecret;
 
+    public String getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
 
     public String getCorp() {
         return corp;

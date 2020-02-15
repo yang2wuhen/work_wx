@@ -19,26 +19,20 @@ import java.util.List;
 
 @Service
 @Transactional
-public class ContactServerImpl implements ContactServer {
+public class ExtendContactServerImpl implements ExtendContactServer {
 
-    private ContactDbDao contactDbDao;
-
+    private ExtendContactDbDao extendContactDbDao;
 
     @Autowired
-    public void setContactDbDao(ContactDbDao contactDbDao) {
-        this.contactDbDao = contactDbDao;
+    public void setExtendContactDbDao(ExtendContactDbDao extendContactDbDao) {
+        this.extendContactDbDao = extendContactDbDao;
     }
 
 
     @Override
-    public void insertAll(List<ContactModel> list) {
-        ContactModel contact = null;
-        for (ContactModel contactModel : list) {
-            contact = new ContactModel(contactModel.getCorp(),contactModel.getUserid());
-            contactDbDao.updateInsert(contact,contactModel);
-        }
+    public void insertUpdate(ExtendContactModel queryExtendContactModel, ExtendContactModel extendContactModel) {
+        extendContactDbDao.updateInsert(queryExtendContactModel, extendContactModel);
     }
-
 
 
 
