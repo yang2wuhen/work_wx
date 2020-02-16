@@ -9,7 +9,10 @@ package com.work.wx.task;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
 import com.work.wx.config.CustomConfig;
+import com.work.wx.controller.modle.AuditModel;
 import com.work.wx.controller.modle.ChatModel;
+import com.work.wx.controller.modle.KeywordConfigModel;
+import com.work.wx.server.AuditServer;
 import com.work.wx.server.ChatServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,20 +26,24 @@ public class AutoBackUpAuditTask {
     private final static int LIMIT = 1000;
     private final static Logger logger = LoggerFactory.getLogger(AutoBackUpAuditTask.class);
 
+    private CustomConfig customConfig;
     private ChatServer chatServer;
+    private AuditServer auditServer;
 
     @Autowired
     public void setChatRecordIdServer(ChatServer chatServer) {
         this.chatServer = chatServer;
     }
 
-    private CustomConfig customConfig;
-
     @Autowired
     public void setCustomConfig(CustomConfig customConfig) {
         this.customConfig = customConfig;
     }
 
+    @Autowired
+    public void setAuditServer(AuditServer auditServer) {
+        this.auditServer = auditServer;
+    }
 
     /**
      * @todo 自动备份消息存档
@@ -56,7 +63,7 @@ public class AutoBackUpAuditTask {
             seq = chatModel.getSeq();
         }
         logger.debug("start backup seq start with "+seq);
-        boolean repeat = AuditBackUpUtil.insertChat(chatServer,customConfig,seq,LIMIT);
+        boolean repeat = AuditBackUpUtil.insertChat(chatServer,auditServer,customConfig,seq,LIMIT);
         if (repeat) {
             backupWeChat();
         }
