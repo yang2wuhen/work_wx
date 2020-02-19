@@ -14,16 +14,14 @@ import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.ContactModel;
 import com.work.wx.controller.modle.ExtendContactModel;
-import com.work.wx.server.ChatServer;
-import com.work.wx.server.ContactServer;
-import com.work.wx.server.ExtendContactServer;
-import com.work.wx.server.TokenServer;
+import com.work.wx.server.*;
 import org.apache.catalina.util.ParameterMap;
 import org.apache.commons.lang3.StringUtils;
 import org.attoparser.util.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.gson.GsonProperties;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -39,6 +37,12 @@ public class AutoBackUpContactTask {
     private CustomConfig customConfig;
     private ContactServer contactServer;
     private ExtendContactServer extendContactServer;
+    private GroupServer groupServer;
+
+    @Autowired
+    public void setGroupServer(GroupServer groupServer) {
+        this.groupServer = groupServer;
+    }
 
     @Autowired
     public void setCustomConfig(CustomConfig customConfig) {
@@ -76,7 +80,7 @@ public class AutoBackUpContactTask {
      * @date 2020/1/27 13:14
      */
     @Async
-    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*3)
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*5)
     public void backupContact() {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
         ParameterMap parameterMap = new ParameterMap();
@@ -107,14 +111,14 @@ public class AutoBackUpContactTask {
 
 
     /**
-     * @todo 自动备份通讯录
+     * @todo 自动备份外部联系人
      * @author wuhen
      * @returns void
      * @throws
      * @date 2020/1/27 13:14
      */
     @Async
-    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*5)
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*10)
     public void backUpExtendContact() {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list";
         ParameterMap parameterMap = new ParameterMap();
@@ -153,6 +157,30 @@ public class AutoBackUpContactTask {
             e.printStackTrace();
         }
     }
+
+
+
+    /**
+     * @todo 自动备份外部联系人群
+     * @author wuhen
+     * @returns void
+     * @throws
+     * @date 2020/1/27 13:14
+     */
+    @Async
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*15)
+    public void backUpExtendGroup() {
+        ContactModel contactModel = new ContactModel(customConfig.getCorp());
+        List<ContactModel> contactModels = contactServer.getContacts(contactModel);
+        if (null != contactModels && contactModels.size() > 0) {
+            for (ContactModel contact : contactModels) {
+                String userId = contact.getUserid();
+                logger.debug("get user chat_id from user id  is " + userId);
+                GroupDataProcess.groupGetChatId(groupServer,customConfig,userId, getExtendToken());
+            }
+        }
+     }
+
 
 
 

@@ -39,7 +39,8 @@ public class ContactServerImpl implements ContactServer {
         }
     }
 
-
-
-
+    @Override
+    public List<ContactModel> getContacts(ContactModel contactModel) {
+        return contactDbDao.queryList(contactModel);
+    }
 }

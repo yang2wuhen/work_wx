@@ -68,5 +68,8 @@ public class AuditServerImpl implements AuditServer {
         return auditDbDao.queryGroupBy(auditModel,groupField, orderField);
     }
 
-
+    @Override
+    public void insertUpdateAuditModel(AuditModel queryAuditModel, AuditModel auditModel) {
+        auditDbDao.updateInsert(queryAuditModel, auditModel);
+    }
 }

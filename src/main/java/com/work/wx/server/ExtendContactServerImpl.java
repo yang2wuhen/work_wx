@@ -35,5 +35,13 @@ public class ExtendContactServerImpl implements ExtendContactServer {
     }
 
 
+    @Override
+    public List<ExtendContactModel> getExtendContacts(ExtendContactModel extendContactModel) {
+        return extendContactDbDao.queryList(extendContactModel);
+    }
 
+    @Override
+    public ExtendContactModel getExtendContact(ExtendContactModel extendContactModel) {
+        return (ExtendContactModel) extendContactDbDao.queryOne(extendContactModel);
+    }
 }

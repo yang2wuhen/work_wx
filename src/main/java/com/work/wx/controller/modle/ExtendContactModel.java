@@ -259,4 +259,9 @@ public class ExtendContactModel extends BaseModel{
         this.corpId = corpId;
         this.external_userid = external_userid;
     }
+
+
+    public ExtendContactModel(String corpId) {
+        this.corpId = corpId;
+    }
 }

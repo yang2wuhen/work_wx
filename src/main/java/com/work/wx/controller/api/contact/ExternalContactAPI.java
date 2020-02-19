@@ -11,7 +11,9 @@ import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
+import com.work.wx.controller.modle.ExtendContactModel;
 import com.work.wx.controller.modle.TokenModel;
+import com.work.wx.server.ExtendContactServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.ErrorTip;
 import com.work.wx.tips.SuccessTip;
@@ -30,8 +32,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.jnlp.ExtendedService;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -42,6 +46,12 @@ public class ExternalContactAPI {
 
     private TokenServer tokenServer;
     private CustomConfig customConfig;
+    private ExtendContactServer extendedService;
+
+    @Autowired
+    public void setExtendedService(ExtendContactServer extendedService) {
+        this.extendedService = extendedService;
+    }
 
     @Autowired
     public void setCustomConfig(CustomConfig customConfig) {
@@ -58,29 +68,25 @@ public class ExternalContactAPI {
     }
 
 
-
-    @ApiOperation("获取客户列表")
+    @ApiOperation("获取外部联系人列表")
     @ResponseBody
     @RequestMapping(value = "/getExternalContactUsers",method = RequestMethod.POST)
-    public Tip getExternalContactUsers(@RequestParam("userid") String userid) {
-        String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list";
-        ParameterMap parameterMap = new ParameterMap();
-        parameterMap.put("userid",userid);
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+    public Tip getExternalContactUsers() {
+        ExtendContactModel extendContactModel = new ExtendContactModel(customConfig.getCorp());
+        List<ExtendContactModel> extendContactModels = extendedService.getExtendContacts(extendContactModel);
+        return new SuccessTip(extendContactModels);
     }
 
 
-
-    @ApiOperation("获取客户详情")
+    @ApiOperation("获取外部联系人详情")
     @ResponseBody
     @RequestMapping(value = "/getExternalUserInfo",method = RequestMethod.POST)
     public Tip getExternalUserInfo(@RequestParam("externalUserId") String externalUserId) {
-        String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get";
-        ParameterMap parameterMap = new ParameterMap();
-        parameterMap.put("external_userid",externalUserId);
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+        ExtendContactModel extendContactModel = new ExtendContactModel(customConfig.getCorp());
+        extendContactModel.setExternal_userid(externalUserId);
+        ExtendContactModel extendContact = extendedService.getExtendContact(extendContactModel);
+        return new SuccessTip(extendContact);
     }
-
 
 
     /**
@@ -97,7 +103,6 @@ public class ExternalContactAPI {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/list";
         return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(), json);
     }
-
 
 
     /**

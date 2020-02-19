@@ -274,4 +274,8 @@ public class ContactModel {
         this.corp = corp;
         this.userid = userid;
     }
+
+    public ContactModel(String corp) {
+        this.corp = corp;
+    }
 }

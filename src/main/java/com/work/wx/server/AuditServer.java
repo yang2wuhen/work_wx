@@ -20,6 +20,8 @@ public interface AuditServer {
 
     public void insertAuditModel(AuditModel auditModel);
 
+    public void insertUpdateAuditModel(AuditModel queryAuditModel,AuditModel auditModel);
+
     public List<AuditModel> getAuditModels(AuditModel auditModel);
 
     public KeywordConfigModel getKeywordConfigModel(KeywordConfigModel keywordConfigModel);

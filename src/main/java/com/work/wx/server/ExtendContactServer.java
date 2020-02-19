@@ -16,4 +16,8 @@ public interface ExtendContactServer {
 
     public void insertUpdate(ExtendContactModel queryExtendContactModel, ExtendContactModel extendContactModel);
 
+    public List<ExtendContactModel> getExtendContacts(ExtendContactModel extendContactModel);
+
+    public ExtendContactModel getExtendContact(ExtendContactModel extendContactModel);
+
 }

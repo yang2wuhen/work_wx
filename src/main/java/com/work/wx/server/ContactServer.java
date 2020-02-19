@@ -19,5 +19,7 @@ public interface ContactServer {
 
     public void insertAll(List<ContactModel> list);
 
+    public List<ContactModel> getContacts(ContactModel contactModel);
+
 
 }
