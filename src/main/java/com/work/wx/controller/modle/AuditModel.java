@@ -100,4 +100,11 @@ public class AuditModel extends BaseModel {
     public void setInsertTime(Long insertTime) {
         this.insertTime = insertTime;
     }
+
+    public AuditModel() {
+    }
+
+    public AuditModel(String corpId) {
+        this.corpId = corpId;
+    }
 }

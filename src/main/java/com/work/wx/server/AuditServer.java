@@ -25,4 +25,8 @@ public interface AuditServer {
     public KeywordConfigModel getKeywordConfigModel(KeywordConfigModel keywordConfigModel);
 
     public void insertKeywordConfigModel(KeywordConfigModel keywordConfigModel);
+
+    public List<String> getGroupAuditUsers(AuditModel auditModel, String groupField, String orderField);
+
+
 }

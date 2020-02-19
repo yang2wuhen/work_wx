@@ -62,4 +62,11 @@ public class AuditServerImpl implements AuditServer {
     public void insertKeywordConfigModel(KeywordConfigModel keywordConfigModel) {
         keywordConfigDbDao.updateInsert(keywordConfigModel,keywordConfigModel);
     }
+
+    @Override
+    public List<String> getGroupAuditUsers(AuditModel auditModel, String groupField, String orderField) {
+        return auditDbDao.queryGroupBy(auditModel,groupField, orderField);
+    }
+
+
 }
