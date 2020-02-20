@@ -80,7 +80,7 @@ public class AutoBackUpContactTask {
      * @date 2020/1/27 13:14
      */
     @Async
-    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*5)
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*10)
     public void backupContact() {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
         ParameterMap parameterMap = new ParameterMap();
@@ -96,6 +96,7 @@ public class AutoBackUpContactTask {
                     List list = new ArrayList();
                     ContactModel contactModel = null;
                     for (JsonElement jsonElement : jsonArray) {
+                        logger.debug(jsonElement.toString());
                         contactModel = new Gson().fromJson(jsonElement, ContactModel.class);
                         contactModel.setCorp(customConfig.getCorp());
                         list.add(contactModel);
@@ -118,7 +119,7 @@ public class AutoBackUpContactTask {
      * @date 2020/1/27 13:14
      */
     @Async
-    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*10)
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*20)
     public void backUpExtendContact() {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list";
         ParameterMap parameterMap = new ParameterMap();
@@ -168,7 +169,7 @@ public class AutoBackUpContactTask {
      * @date 2020/1/27 13:14
      */
     @Async
-    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*15)
+    @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*30)
     public void backUpExtendGroup() {
         ContactModel contactModel = new ContactModel(customConfig.getCorp());
         List<ContactModel> contactModels = contactServer.getContacts(contactModel);

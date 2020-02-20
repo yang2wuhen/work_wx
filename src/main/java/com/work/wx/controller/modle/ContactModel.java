@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import java.util.Arrays;
 
 public class ContactModel {
+
     private String corp;
 
     private String userid;      //	成员UserID。对应管理端的帐号
@@ -30,10 +31,10 @@ public class ContactModel {
     private String alias;           //	别名；第三方仅通讯录应用可获取
     private Integer    status;          //	激活状态: 1=已激活，2=已禁用，4=未激活 已激活代表已激活企业微信或已关注微工作台（原企业号）。
                                     // 未激活代表既未激活企业微信又未关注微工作台（原企业号）。
-    private JsonObject extattr;     //	扩展属性，第三方仅通讯录应用可获取
+    private Object extattr;     //	扩展属性，第三方仅通讯录应用可获取
     private String  qr_code;        //	员工个人二维码，扫描可添加为外部联系人；第三方仅通讯录应用可获取
-    private String  external_profile;   //	成员对外属性，字段详情见对外属性；第三方仅通讯录应用可获取
-    private JsonObject  external_position;  //	对外职务。 第三方仅通讯录应用可获取
+    private Object  external_profile;   //	成员对外属性，字段详情见对外属性；第三方仅通讯录应用可获取
+    private String  external_position;  //	对外职务。 第三方仅通讯录应用可获取
     private String address;         //	地址
     private Integer  hide_mobile;       //	是否隐藏手机号
     private String english_name;        //	英文名
@@ -174,36 +175,12 @@ public class ContactModel {
         this.status = status;
     }
 
-    public JsonObject getExtattr() {
-        return extattr;
-    }
-
-    public void setExtattr(JsonObject extattr) {
-        this.extattr = extattr;
-    }
-
     public String getQr_code() {
         return qr_code;
     }
 
     public void setQr_code(String qr_code) {
         this.qr_code = qr_code;
-    }
-
-    public String getExternal_profile() {
-        return external_profile;
-    }
-
-    public void setExternal_profile(String external_profile) {
-        this.external_profile = external_profile;
-    }
-
-    public JsonObject getExternal_position() {
-        return external_position;
-    }
-
-    public void setExternal_position(JsonObject external_position) {
-        this.external_position = external_position;
     }
 
     public String getAddress() {
@@ -267,6 +244,30 @@ public class ContactModel {
                 '}';
     }
 
+    public Object getExtattr() {
+        return extattr;
+    }
+
+    public void setExtattr(Object extattr) {
+        this.extattr = extattr;
+    }
+
+    public Object getExternal_profile() {
+        return external_profile;
+    }
+
+    public void setExternal_profile(Object external_profile) {
+        this.external_profile = external_profile;
+    }
+
+    public String getExternal_position() {
+        return external_position;
+    }
+
+    public void setExternal_position(String external_position) {
+        this.external_position = external_position;
+    }
+
     public ContactModel() {
     }
 
@@ -278,4 +279,6 @@ public class ContactModel {
     public ContactModel(String corp) {
         this.corp = corp;
     }
+
+
 }

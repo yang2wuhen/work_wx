@@ -36,7 +36,9 @@ public class GroupDataProcess {
         jsonObject.addProperty("offset", 0);
         jsonObject.addProperty("limit", 1000);
         JsonObject subJsonObject = new JsonObject();
-        subJsonObject.addProperty("userid_list", "\\["+userId+"\\]");
+        JsonArray jsonElements = new JsonArray();
+        jsonElements.add(userId);
+        subJsonObject.add("userid_list",jsonElements);
         jsonObject.add("owner_filter", subJsonObject);
         try {
             String response =  new RequestUtil().requestJsonPost(BASE_ADDRESS,extendToken,jsonObject.toString());
