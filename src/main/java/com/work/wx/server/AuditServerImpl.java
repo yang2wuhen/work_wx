@@ -59,8 +59,8 @@ public class AuditServerImpl implements AuditServer {
 
 
     @Override
-    public void insertKeywordConfigModel(KeywordConfigModel keywordConfigModel) {
-        keywordConfigDbDao.updateInsert(keywordConfigModel,keywordConfigModel);
+    public Long insertKeywordConfigModel(KeywordConfigModel keywordConfigModel) {
+        return keywordConfigDbDao.updateInsert(keywordConfigModel,keywordConfigModel);
     }
 
     @Override
