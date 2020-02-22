@@ -6,8 +6,6 @@
 
 package com.work.wx.controller.modle;
 
-import com.google.gson.JsonObject;
-
 import java.util.Arrays;
 
 public class ContactModel {
@@ -38,6 +36,7 @@ public class ContactModel {
     private String address;         //	地址
     private Integer  hide_mobile;       //	是否隐藏手机号
     private String english_name;        //	英文名
+    private Long updateTime;
 
 
     public String getUserid() {
@@ -236,11 +235,12 @@ public class ContactModel {
                 ", status=" + status +
                 ", extattr=" + extattr +
                 ", qr_code='" + qr_code + '\'' +
-                ", external_profile='" + external_profile + '\'' +
-                ", external_position=" + external_position +
+                ", external_profile=" + external_profile +
+                ", external_position='" + external_position + '\'' +
                 ", address='" + address + '\'' +
                 ", hide_mobile=" + hide_mobile +
                 ", english_name='" + english_name + '\'' +
+                ", insertTime=" + updateTime +
                 '}';
     }
 
@@ -266,6 +266,14 @@ public class ContactModel {
 
     public void setExternal_position(String external_position) {
         this.external_position = external_position;
+    }
+
+    public Long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Long updateTime) {
+        this.updateTime = updateTime;
     }
 
     public ContactModel() {

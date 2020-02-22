@@ -22,7 +22,7 @@ public class GroupModel {
     private String notice;          //	群公告
     private Integer status;
     private List<GroupMember> member_list;
-
+    private Long insertTime;
 
     class GroupMember {
         private String userid;          //	群成员id
@@ -133,6 +133,14 @@ public class GroupModel {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Long getInsertTime() {
+        return insertTime;
+    }
+
+    public void setInsertTime(Long insertTime) {
+        this.insertTime = insertTime;
     }
 
     public GroupModel() {

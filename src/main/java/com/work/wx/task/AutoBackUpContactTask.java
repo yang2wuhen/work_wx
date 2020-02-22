@@ -11,17 +11,14 @@ import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
-import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.controller.modle.ContactModel;
 import com.work.wx.controller.modle.ExtendContactModel;
 import com.work.wx.server.*;
 import org.apache.catalina.util.ParameterMap;
 import org.apache.commons.lang3.StringUtils;
-import org.attoparser.util.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.gson.GsonProperties;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -95,10 +92,12 @@ public class AutoBackUpContactTask {
                     JsonArray jsonArray = jsonObject.get("userlist").getAsJsonArray();
                     List list = new ArrayList();
                     ContactModel contactModel = null;
+                    Long localTime = System.currentTimeMillis();
                     for (JsonElement jsonElement : jsonArray) {
                         logger.debug(jsonElement.toString());
                         contactModel = new Gson().fromJson(jsonElement, ContactModel.class);
                         contactModel.setCorp(customConfig.getCorp());
+                        contactModel.setUpdateTime(localTime);
                         list.add(contactModel);
                     }
                     contactServer.insertAll(list);
@@ -132,6 +131,7 @@ public class AutoBackUpContactTask {
                 if (status == 0) {
                     JsonArray jsonArray = jsonObject.get("external_userid").getAsJsonArray();
                     ExtendContactModel extendContactModel = null;
+                    Long localTime = System.currentTimeMillis();
                     for (JsonElement jsonElement : jsonArray) {
                         String extendUserId = jsonElement.getAsString();
                         logger.debug("get userId is "+ extendUserId +" info");
@@ -148,6 +148,7 @@ public class AutoBackUpContactTask {
                                 String userId = resultRes.get("external_contact").getAsJsonObject().get("external_userid").getAsString();
                                 contactModel.setExternal_userid(userId);
                                 contactModel.setCorpId(customConfig.getCorp());
+                                contactModel.setUpdateTime(localTime);
                                 extendContactServer.insertUpdate(extendContactModel, contactModel);
                             }
                         }

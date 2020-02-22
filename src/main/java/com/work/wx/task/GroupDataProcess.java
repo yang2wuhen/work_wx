@@ -88,6 +88,7 @@ public class GroupDataProcess {
                     GroupModel groupModel = new Gson().fromJson(resultRes.get("group_chat").getAsJsonObject(), GroupModel.class);
                     groupModel.setCorp(customConfig.getCorp());
                     groupModel.setStatus(status);
+                    groupModel.setInsertTime(System.currentTimeMillis());
                     GroupModel queryGroupModel = new GroupModel(customConfig.getCorp(),chatId);
                     groupServer.insertUpdateGroupModel(queryGroupModel, groupModel);
                 }

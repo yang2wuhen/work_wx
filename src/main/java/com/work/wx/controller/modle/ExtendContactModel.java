@@ -14,6 +14,8 @@ public class ExtendContactModel extends BaseModel{
     private List<FollowUser> follow_user;
     private ExternalUser external_contact;
     private String external_userid;
+    private Long updateTime;
+
 
     class ExternalUser {
         private String external_userid;             //	外部联系人的userid
@@ -27,7 +29,6 @@ public class ExtendContactModel extends BaseModel{
         private String corp_full_name;              //	外部联系人所在企业的主体名称，仅当联系人类型是企业微信用户时有此字段
         private String external_profile;            //	外部联系人的自定义展示信息，可以有多个字段和多种类型，包括文本，网页和小程序，仅当联系人类型是企业微信用户时有此
         // 字段 ，字段详情见对外属性；
-
 
         public String getExternal_userid() {
             return external_userid;
@@ -249,6 +250,14 @@ public class ExtendContactModel extends BaseModel{
 
     public void setExternal_contact(ExternalUser external_contact) {
         this.external_contact = external_contact;
+    }
+
+    public Long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Long updateTime) {
+        this.updateTime = updateTime;
     }
 
     public ExtendContactModel() {
