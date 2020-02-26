@@ -6,7 +6,6 @@
 
 package com.work.wx.controller.api.chat;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.api.token.MsgAuditAccessToken;
 import com.work.wx.controller.modle.AuditModel;
@@ -45,20 +44,20 @@ public class AuditAPI {
     }
 
 
+    @ApiOperation("添加审计关键词配置")
+    @ResponseBody
+    @RequestMapping(value = "/addAuditKeyword",method = RequestMethod.POST)
+    public Tip addAuditKeyword(@RequestBody String[] keyword){
+        return getTip(keyword);
+    }
+
+
     @ApiOperation("修改审计关键词配置")
     @ResponseBody
     @RequestMapping(value = "/updateAuditKeyword",method = RequestMethod.POST)
     public Tip updateAuditKeyword(@RequestBody String[] keyword){
-        if (null != keyword && keyword.length > 0) {
-            KeywordConfigModel keywordConfigModel = new KeywordConfigModel(customConfig.getCorp());
-            keywordConfigModel.setKeywords(keyword);
-            keywordConfigModel.setInsertTime(System.currentTimeMillis());
-            Long id = auditServer.insertKeywordConfigModel(keywordConfigModel);
-            return new SuccessTip(id);
-        }
-        return new ErrorTip(0);
+        return getTip(keyword);
     }
-
 
     @ApiOperation("获取审计人员列表")
     @ResponseBody
@@ -70,6 +69,7 @@ public class AuditAPI {
     }
 
 
+
     @ApiOperation("获取审计全部数据")
     @ResponseBody
     @RequestMapping(value = "/getAuditModels",method = RequestMethod.POST)
@@ -77,6 +77,18 @@ public class AuditAPI {
         AuditModel auditModel = new AuditModel(customConfig.getCorp());
         List audits =  auditServer.getAuditModels(auditModel);
         return new SuccessTip(audits);
+    }
+
+
+    private Tip getTip(@RequestBody String[] keyword) {
+        if (null != keyword && keyword.length > 0) {
+            KeywordConfigModel keywordConfigModel = new KeywordConfigModel(customConfig.getCorp());
+            keywordConfigModel.setKeywords(keyword);
+            keywordConfigModel.setInsertTime(System.currentTimeMillis());
+            Long id = auditServer.insertKeywordConfigModel(keywordConfigModel);
+            return new SuccessTip(id);
+        }
+        return new ErrorTip(0);
     }
 
 
