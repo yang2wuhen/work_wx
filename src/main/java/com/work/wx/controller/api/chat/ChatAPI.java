@@ -23,9 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -116,24 +119,11 @@ public class ChatAPI {
     }
 
 
+
     @ApiOperation("获取会话存档图片")
     @ResponseBody
     @RequestMapping(value = "/getAuditImageFile",method = RequestMethod.GET,produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getAuditFile(@RequestParam("msgId") String msgId){
-        return getBytes(msgId);
-    }
-
-
-
-    @ApiOperation("获取会话存档文件")
-    @ResponseBody
-    @RequestMapping(value = "/getAuditFileFile",method = RequestMethod.GET,produces = MediaType.ALL_VALUE)
-    public byte[] getAuditFileFile(@RequestParam("msgId") String msgId){
-        return getBytes(msgId);
-    }
-
-
-    private byte[] getBytes(@RequestParam("msgId") String msgId) {
         try {
             InputStream inputStream = chatServer.getChatFile(msgId);
             if (null != inputStream) {
@@ -146,6 +136,30 @@ public class ChatAPI {
         }
         return null;
     }
+
+
+
+    @ApiOperation("获取会话存文件")
+    @ResponseBody
+    @RequestMapping(value = "/getAuditFileFile",method = RequestMethod.GET)
+    public ResponseEntity<String> getAuditFileFile(HttpServletResponse response, @RequestParam("msgId") String msgId){
+        try {
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setHeader("Content-Disposition","attachment;filename="+msgId);
+            ServletOutputStream outputStream = response.getOutputStream();
+            chatServer.getChatFile(msgId, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            return ResponseEntity.ok().body("SUCCESS");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
+
 
 
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -88,6 +89,11 @@ public class ChatServerImpl implements ChatServer {
     @Override
     public InputStream getChatFile(String fileName) throws Exception {
         return mongoGridFSDao.getFile(fileName);
+    }
+
+    @Override
+    public void getChatFile(String fileName,OutputStream outputStream) throws Exception {
+        mongoGridFSDao.getFile(fileName,outputStream);
     }
 
     @Override

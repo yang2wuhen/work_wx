@@ -24,6 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 
 @Repository
@@ -56,6 +57,10 @@ public class MongoGridFSDao {
         return gridFSBucket.openDownloadStream(fileName);
     }
 
+
+    public void getFile(String fileName, OutputStream outputStream) throws Exception {
+        gridFSBucket.downloadToStream(fileName, outputStream);
+    }
 
 
 

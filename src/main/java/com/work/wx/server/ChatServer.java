@@ -14,6 +14,7 @@ import com.work.wx.controller.modle.FileModel;
 import org.bson.types.ObjectId;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +37,8 @@ public interface ChatServer {
     public GridFSUploadStream insertChatData(FileModel fileModel);
 
     public InputStream getChatFile(String fileName) throws Exception;
+
+    public void getChatFile(String fileName,OutputStream outputStream) throws Exception;
 
     public List<ChatModel> getChatList(String corpId,String userId,String sendId);
 
