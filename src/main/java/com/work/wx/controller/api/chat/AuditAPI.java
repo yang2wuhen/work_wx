@@ -52,12 +52,15 @@ public class AuditAPI {
     }
 
 
+
     @ApiOperation("修改审计关键词配置")
     @ResponseBody
     @RequestMapping(value = "/updateAuditKeyword",method = RequestMethod.POST)
     public Tip updateAuditKeyword(@RequestBody String[] keyword){
         return getTip(keyword);
     }
+
+
 
     @ApiOperation("获取审计人员列表")
     @ResponseBody
@@ -70,7 +73,7 @@ public class AuditAPI {
 
 
 
-    @ApiOperation("获取审计全部数据")
+    @ApiOperation("获取公司审计全部数据")
     @ResponseBody
     @RequestMapping(value = "/getAuditModels",method = RequestMethod.POST)
     public Tip getAuditModels(){
@@ -78,6 +81,7 @@ public class AuditAPI {
         List audits =  auditServer.getAuditModels(auditModel);
         return new SuccessTip(audits);
     }
+
 
 
     private Tip getTip(@RequestBody String[] keyword) {

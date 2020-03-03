@@ -107,7 +107,6 @@ public class ChatAPI {
     }
 
 
-
     @ApiOperation("获取群会话详情")
     @ResponseBody
     @RequestMapping(value = "/getChatRoom",method = RequestMethod.POST)
