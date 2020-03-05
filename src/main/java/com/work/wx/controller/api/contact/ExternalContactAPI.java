@@ -13,6 +13,7 @@ import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.modle.ExtendContactModel;
 import com.work.wx.controller.modle.TokenModel;
+import com.work.wx.server.CorpServer;
 import com.work.wx.server.ExtendContactServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.ErrorTip;
@@ -35,7 +36,7 @@ public class ExternalContactAPI {
     private final static Logger logger = LoggerFactory.getLogger(ExternalContactAPI.class);
 
     private TokenServer tokenServer;
-    private CustomConfig customConfig;
+    private CorpServer corpServer;
     private ExtendContactServer extendedService;
 
     @Autowired
@@ -44,8 +45,8 @@ public class ExternalContactAPI {
     }
 
     @Autowired
-    public void setCustomConfig(CustomConfig customConfig) {
-        this.customConfig = customConfig;
+    public void setCorpServer(CorpServer corpServer) {
+        this.corpServer = corpServer;
     }
 
     @Autowired
@@ -53,16 +54,16 @@ public class ExternalContactAPI {
         this.tokenServer = tokenServer;
     }
 
-    private String getToken() {
-        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,customConfig);
+    private String getToken(String corpId) {
+        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,corpServer.getCorpModel(corpId));
     }
 
 
     @ApiOperation("获取外部联系人列表")
     @ResponseBody
     @RequestMapping(value = "/getExternalContactUsers",method = RequestMethod.POST)
-    public Tip getExternalContactUsers() {
-        ExtendContactModel extendContactModel = new ExtendContactModel(customConfig.getCorp());
+    public Tip getExternalContactUsers(@RequestParam("cropId") String cropId) {
+        ExtendContactModel extendContactModel = new ExtendContactModel(cropId);
         List<ExtendContactModel> extendContactModels = extendedService.getExtendContacts(extendContactModel);
         return new SuccessTip(extendContactModels);
     }
@@ -71,8 +72,8 @@ public class ExternalContactAPI {
     @ApiOperation("获取外部联系人详情")
     @ResponseBody
     @RequestMapping(value = "/getExternalUserInfo",method = RequestMethod.POST)
-    public Tip getExternalUserInfo(@RequestParam("externalUserId") String externalUserId) {
-        ExtendContactModel extendContactModel = new ExtendContactModel(customConfig.getCorp());
+    public Tip getExternalUserInfo(@RequestParam("cropId") String cropId,@RequestParam("externalUserId") String externalUserId) {
+        ExtendContactModel extendContactModel = new ExtendContactModel(cropId);
         extendContactModel.setExternal_userid(externalUserId);
         ExtendContactModel extendContact = extendedService.getExtendContact(extendContactModel);
         return new SuccessTip(extendContact);
@@ -89,9 +90,9 @@ public class ExternalContactAPI {
     @ApiOperation("获取配置过客户群管理的客户群列表")
     @ResponseBody
     @RequestMapping(value = "/getExternalGroupChat",method = RequestMethod.POST)
-    public Tip getExternalGroupChat(@RequestBody String json) {
+    public Tip getExternalGroupChat(@RequestParam("cropId") String cropId,@RequestBody String json) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/list";
-        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(), json);
+        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(cropId), json);
     }
 
 
@@ -105,9 +106,9 @@ public class ExternalContactAPI {
     @ApiOperation("客户群统计数据")
     @ResponseBody
     @RequestMapping(value = "/getUserBehavior",method = RequestMethod.POST)
-    public Tip getUserBehavior(@RequestBody  String json) {
+    public Tip getUserBehavior(@RequestParam("cropId") String cropId,@RequestBody  String json) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_user_behavior_data";
-        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(), json);
+        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(cropId), json);
     }
 
 
@@ -122,9 +123,9 @@ public class ExternalContactAPI {
     @ApiOperation("获取成员联系客户的数据，包括发起申请数、新增客户数、聊天数、发送消息数和删除/拉黑成员的客户数等指标")
     @ResponseBody
     @RequestMapping(value = "/getUserStatistic",method = RequestMethod.POST)
-    public Tip getUserStatistic(@RequestBody String json) {
+    public Tip getUserStatistic(@RequestParam("cropId") String cropId,@RequestBody String json) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/statistic";
-        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(), json);
+        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(cropId), json);
     }
 
 

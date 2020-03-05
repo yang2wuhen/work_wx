@@ -10,10 +10,7 @@ import com.google.gson.*;
 import com.mongodb.client.gridfs.GridFSUploadStream;
 import com.tencent.wework.Finance;
 import com.work.wx.config.CustomConfig;
-import com.work.wx.controller.modle.AuditModel;
-import com.work.wx.controller.modle.ChatDataModel;
-import com.work.wx.controller.modle.ChatModel;
-import com.work.wx.controller.modle.KeywordConfigModel;
+import com.work.wx.controller.modle.*;
 import com.work.wx.server.AuditServer;
 import com.work.wx.server.ChatServer;
 import org.apache.commons.lang3.StringUtils;
@@ -33,10 +30,10 @@ public class AuditBackUpUtil {
     private static long sdk = 0;
     private static long timeout = 10 * 60 * 1000;
 
-    private static void initSDK (CustomConfig customConfig) {
+    private static void initSDK (CorpModel corpModel) {
         if (sdk == 0) {
             sdk = Finance.NewSdk();
-            Finance.Init(sdk,customConfig.getCorp(),customConfig.getAuditSecret());
+            Finance.Init(sdk,corpModel.getCorp(),corpModel.getAuditSecret());
         }
     }
 
@@ -50,8 +47,8 @@ public class AuditBackUpUtil {
      * @throws
      * @date 2020/1/24 18:25
      */
-    public static boolean insertChat(ChatServer chatServer, AuditServer auditServer,CustomConfig customConfig, long seq, long limit) {
-        initSDK(customConfig);
+    public static boolean insertChat(ChatServer chatServer, AuditServer auditServer,CorpModel corpModel, long seq, long limit) {
+        initSDK(corpModel);
         List list = new ArrayList();
         long slice = Finance.NewSlice();
         long ret = Finance.GetChatData(sdk, seq, limit, "", "",timeout,slice);
@@ -63,7 +60,7 @@ public class AuditBackUpUtil {
             if (null != jsonElements && jsonElements.size() > 0) {
                 ChatModel chatModel = null;
                 long newSlice = Finance.NewSlice();
-                KeywordConfigModel keywordConfigModel = auditServer.getKeywordConfigModel(new KeywordConfigModel(customConfig.getCorp()));
+                KeywordConfigModel keywordConfigModel = auditServer.getKeywordConfigModel(new KeywordConfigModel(corpModel.getCorp()));
                 for (JsonElement jsonElement : jsonElements) {
                     try {
                         JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -75,9 +72,9 @@ public class AuditBackUpUtil {
                             msg.replace("\"id\"", "table_id");
                             logger.debug(msg);
                             chatModel = new Gson().fromJson(msg,ChatModel.class);
-                            chatModel.setCorpId(customConfig.getCorp());
+                            chatModel.setCorpId(corpModel.getCorp());
                             chatModel.setSeq(LocalSEQ);
-                            auditUtil(chatModel, keywordConfigModel, customConfig, auditServer, msg, LocalSEQ);
+                            auditUtil(chatModel, keywordConfigModel, corpModel, auditServer, msg, LocalSEQ);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -97,7 +94,6 @@ public class AuditBackUpUtil {
     /**
      * @todo
      * @author wuhen
-     * @param customConfig :
      * @param gridFSUploadStream :
      * @param indexbuf :
      * @param sdkField :
@@ -105,9 +101,9 @@ public class AuditBackUpUtil {
      * @throws
      * @date 2020/2/11 15:15
      */
-    public static boolean getMediaData(CustomConfig customConfig, GridFSUploadStream gridFSUploadStream,
+    public static boolean getMediaData(CorpModel corpModel, GridFSUploadStream gridFSUploadStream,
                                        String indexbuf, String sdkField) {
-        initSDK(customConfig);
+        initSDK(corpModel);
         long slice = Finance.NewMediaData();
         long ret = Finance.GetMediaData(sdk, indexbuf, sdkField, "", "",timeout,slice);
         if (ret != 0) {
@@ -125,7 +121,7 @@ public class AuditBackUpUtil {
                 gridFSUploadStream.flush();
                 gridFSUploadStream.close();
             } else {
-                getMediaData(customConfig,gridFSUploadStream,outIndex, sdkField);
+                getMediaData(corpModel,gridFSUploadStream,outIndex, sdkField);
             }
             return true;
         }
@@ -138,7 +134,7 @@ public class AuditBackUpUtil {
      * @author wuhen
      * @param chatModel :
      * @param keywordConfigModel :
-     * @param customConfig :
+     * @param corpModel :
      * @param auditServer :
      * @param msg :
      * @param LocalSEQ :
@@ -146,7 +142,7 @@ public class AuditBackUpUtil {
      * @throws
      * @date 2020/2/16 19:41
      */
-    public static void auditUtil(ChatModel chatModel,KeywordConfigModel keywordConfigModel,CustomConfig customConfig,
+    public static void auditUtil(ChatModel chatModel,KeywordConfigModel keywordConfigModel,CorpModel corpModel,
                                  AuditServer auditServer, String msg,Long LocalSEQ) {
         if (chatModel.getMsgtype().equals("text")) {
             logger.debug("文本内容进行审计工作");
@@ -156,7 +152,7 @@ public class AuditBackUpUtil {
                 if (exit) {
                     logger.debug("文本内容符合审计内容");
                     AuditModel auditModel = new Gson().fromJson(msg, AuditModel.class);
-                    auditModel.setCorpId(customConfig.getCorp());
+                    auditModel.setCorpId(corpModel.getCorp());
                     auditModel.setSeq(LocalSEQ);
                     auditModel.setInsertTime(System.currentTimeMillis());
                     auditModel.setContent(chatModel.getText().getContent());

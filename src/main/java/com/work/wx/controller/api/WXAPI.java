@@ -11,6 +11,7 @@ import com.work.wx.controller.api.token.ApplicationAccessToken;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.api.token.ProviderAccessToken;
+import com.work.wx.server.CorpServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.SuccessTip;
 import com.work.wx.tips.Tip;
@@ -27,10 +28,17 @@ public class WXAPI  {
     private final static Logger logger = LoggerFactory.getLogger(WXAPI.class);
 
     private TokenServer tokenServer;
+    private CorpServer corpServer;
     private CustomConfig customConfig;
+
     @Autowired
     public void setCustomConfig(CustomConfig customConfig) {
         this.customConfig = customConfig;
+    }
+
+    @Autowired
+    public void setCorpServer(CorpServer corpServer) {
+        this.corpServer = corpServer;
     }
 
     @Autowired
@@ -41,16 +49,16 @@ public class WXAPI  {
     @ApiOperation("获取外部联系人token")
     @ResponseBody
     @RequestMapping(value = "/getExternalContactWorkWXToken",method = RequestMethod.POST)
-    public Tip getWorkWXToken() {
-        String accessToken = new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,customConfig);
+    public Tip getWorkWXToken(@RequestParam("corp") String corpId) {
+        String accessToken = new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,corpServer.getCorpModel(corpId));
         return new SuccessTip(accessToken);
     }
 
     @ApiOperation("获取通讯录Token")
     @ResponseBody
     @RequestMapping(value = "/getContactWXToken",method = RequestMethod.POST)
-    public Tip getWorkWXContactToken() {
-        String accessToken = new ContactAccessToken().getContactAccessToken(tokenServer,customConfig);
+    public Tip getWorkWXContactToken(@RequestParam("corp") String corpId) {
+        String accessToken = new ContactAccessToken().getContactAccessToken(tokenServer,corpServer.getCorpModel(corpId));
         return new SuccessTip(accessToken);
     }
 
@@ -58,8 +66,8 @@ public class WXAPI  {
     @ApiOperation("获取三方应用Token")
     @ResponseBody
     @RequestMapping(value = "/getApplicationWXToken",method = RequestMethod.POST)
-    public Tip getApplicationWXToken() {
-        String accessToken = new ApplicationAccessToken().getApplicationAccessToken(tokenServer,customConfig);
+    public Tip getApplicationWXToken(@RequestParam("corp") String corpId) {
+        String accessToken = new ApplicationAccessToken().getApplicationAccessToken(tokenServer,corpServer.getCorpModel(corpId));
         return new SuccessTip(accessToken);
     }
 
@@ -67,7 +75,7 @@ public class WXAPI  {
     @ApiOperation("获取服务商Token")
     @ResponseBody
     @RequestMapping(value = "/getProviderWXToken",method = RequestMethod.POST)
-    public Tip getProviderWXToken() {
+    public Tip getProviderWXToken(@RequestParam("corp") String corpId) {
         String accessToken = new ProviderAccessToken().getProviderAccessToken(tokenServer,customConfig);
         return new SuccessTip(accessToken);
     }

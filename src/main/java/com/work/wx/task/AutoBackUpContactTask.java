@@ -12,6 +12,7 @@ import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.modle.ContactModel;
+import com.work.wx.controller.modle.CorpModel;
 import com.work.wx.controller.modle.ExtendContactModel;
 import com.work.wx.server.*;
 import org.apache.catalina.util.ParameterMap;
@@ -31,19 +32,19 @@ public class AutoBackUpContactTask {
     private final static Logger logger = LoggerFactory.getLogger(AutoBackUpContactTask.class);
 
     private TokenServer tokenServer;
-    private CustomConfig customConfig;
     private ContactServer contactServer;
     private ExtendContactServer extendContactServer;
     private GroupServer groupServer;
+    private CorpServer corpServer;
+
+    @Autowired
+    public void setCorpServer(CorpServer corpServer) {
+        this.corpServer = corpServer;
+    }
 
     @Autowired
     public void setGroupServer(GroupServer groupServer) {
         this.groupServer = groupServer;
-    }
-
-    @Autowired
-    public void setCustomConfig(CustomConfig customConfig) {
-        this.customConfig = customConfig;
     }
 
     @Autowired
@@ -61,12 +62,12 @@ public class AutoBackUpContactTask {
         this.extendContactServer = extendContactServer;
     }
 
-    private String getToken() {
-        return new ContactAccessToken().getContactAccessToken(tokenServer,customConfig);
+    private String getToken(String corpId) {
+        return new ContactAccessToken().getContactAccessToken(tokenServer,corpServer.getCorpModel(corpId));
     }
 
-    private String getExtendToken() {
-        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,customConfig);
+    private String getExtendToken(String corpId) {
+        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,corpServer.getCorpModel(corpId));
     }
 
     /**
@@ -79,33 +80,39 @@ public class AutoBackUpContactTask {
     @Async
     @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*10)
     public void backupContact() {
-        String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
-        ParameterMap parameterMap = new ParameterMap();
-        parameterMap.put("department_id",1);
-        parameterMap.put("fetch_child",1);
-        try {
-            String response =  new RequestUtil().requestGet(BASE_ADDRESS, getToken(),parameterMap);
-            if (StringUtils.isNotEmpty(response)) {
-                JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
-                int status = jsonObject.get("errcode").getAsInt();
-                if (status == 0) {
-                    JsonArray jsonArray = jsonObject.get("userlist").getAsJsonArray();
-                    List list = new ArrayList();
-                    ContactModel contactModel = null;
-                    Long localTime = System.currentTimeMillis();
-                    for (JsonElement jsonElement : jsonArray) {
-                        logger.debug(jsonElement.toString());
-                        contactModel = new Gson().fromJson(jsonElement, ContactModel.class);
-                        contactModel.setCorp(customConfig.getCorp());
-                        contactModel.setUpdateTime(localTime);
-                        list.add(contactModel);
+        List<CorpModel> corpModels = corpServer.getCorpModels();
+        if (null != corpModels && corpModels.size() > 0) {
+            for (CorpModel corpModel : corpModels) {
+                String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
+                ParameterMap parameterMap = new ParameterMap();
+                parameterMap.put("department_id",1);
+                parameterMap.put("fetch_child",1);
+                try {
+                    String response =  new RequestUtil().requestGet(BASE_ADDRESS, getToken(corpModel.getCorp()),parameterMap);
+                    if (StringUtils.isNotEmpty(response)) {
+                        JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
+                        int status = jsonObject.get("errcode").getAsInt();
+                        if (status == 0) {
+                            JsonArray jsonArray = jsonObject.get("userlist").getAsJsonArray();
+                            List list = new ArrayList();
+                            ContactModel contactModel = null;
+                            Long localTime = System.currentTimeMillis();
+                            for (JsonElement jsonElement : jsonArray) {
+                                logger.debug(jsonElement.toString());
+                                contactModel = new Gson().fromJson(jsonElement, ContactModel.class);
+                                contactModel.setCorp(corpModel.getCorp());
+                                contactModel.setUpdateTime(localTime);
+                                list.add(contactModel);
+                            }
+                            contactServer.insertAll(list);
+                        }
                     }
-                    contactServer.insertAll(list);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
     }
 
 
@@ -120,44 +127,51 @@ public class AutoBackUpContactTask {
     @Async
     @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*20)
     public void backUpExtendContact() {
-        String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list";
-        ParameterMap parameterMap = new ParameterMap();
-        parameterMap.put("userid",customConfig.getAdminId());
-        try {
-            String response =  new RequestUtil().requestGet(BASE_ADDRESS, getExtendToken(),parameterMap);
-            if (StringUtils.isNotEmpty(response)) {
-                JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
-                int status = jsonObject.get("errcode").getAsInt();
-                if (status == 0) {
-                    JsonArray jsonArray = jsonObject.get("external_userid").getAsJsonArray();
-                    ExtendContactModel extendContactModel = null;
-                    Long localTime = System.currentTimeMillis();
-                    for (JsonElement jsonElement : jsonArray) {
-                        String extendUserId = jsonElement.getAsString();
-                        logger.debug("get userId is "+ extendUserId +" info");
-                        String extendContact = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get";
-                        ParameterMap map = new ParameterMap();
-                        map.put("external_userid",extendUserId);
-                        String requestGet =  new RequestUtil().requestGet(extendContact, getExtendToken(),map);
-                        if (StringUtils.isNotEmpty(requestGet)) {
-                            logger.debug(requestGet);
-                            JsonObject resultRes = JsonParser.parseString(requestGet).getAsJsonObject();
-                            if (resultRes.get("errcode").getAsInt() == 0) {
-                                extendContactModel = new ExtendContactModel(customConfig.getCorp(), extendUserId);
-                                ExtendContactModel contactModel = new Gson().fromJson(resultRes, ExtendContactModel.class);
-                                String userId = resultRes.get("external_contact").getAsJsonObject().get("external_userid").getAsString();
-                                contactModel.setExternal_userid(userId);
-                                contactModel.setCorpId(customConfig.getCorp());
-                                contactModel.setUpdateTime(localTime);
-                                extendContactServer.insertUpdate(extendContactModel, contactModel);
+        List<CorpModel> corpModels = corpServer.getCorpModels();
+        if (null != corpModels && corpModels.size() > 0) {
+            for (CorpModel corpModel : corpModels) {
+                String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list";
+                ParameterMap parameterMap = new ParameterMap();
+                parameterMap.put("userid",corpModel.getAdminId());
+                try {
+                    String response =  new RequestUtil().requestGet(BASE_ADDRESS, getExtendToken(corpModel.getCorp()),parameterMap);
+                    if (StringUtils.isNotEmpty(response)) {
+                        JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
+                        int status = jsonObject.get("errcode").getAsInt();
+                        if (status == 0) {
+                            JsonArray jsonArray = jsonObject.get("external_userid").getAsJsonArray();
+                            ExtendContactModel extendContactModel = null;
+                            Long localTime = System.currentTimeMillis();
+                            for (JsonElement jsonElement : jsonArray) {
+                                String extendUserId = jsonElement.getAsString();
+                                logger.debug("get userId is "+ extendUserId +" info");
+                                String extendContact = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get";
+                                ParameterMap map = new ParameterMap();
+                                map.put("external_userid",extendUserId);
+                                String requestGet =  new RequestUtil().requestGet(extendContact, getExtendToken(corpModel.getCorp()),map);
+                                if (StringUtils.isNotEmpty(requestGet)) {
+                                    logger.debug(requestGet);
+                                    JsonObject resultRes = JsonParser.parseString(requestGet).getAsJsonObject();
+                                    if (resultRes.get("errcode").getAsInt() == 0) {
+                                        extendContactModel = new ExtendContactModel(corpModel.getCorp(), extendUserId);
+                                        ExtendContactModel contactModel = new Gson().fromJson(resultRes, ExtendContactModel.class);
+                                        String userId = resultRes.get("external_contact").getAsJsonObject().get("external_userid").
+                                                getAsString();
+                                        contactModel.setExternal_userid(userId);
+                                        contactModel.setCorpId(corpModel.getCorp());
+                                        contactModel.setUpdateTime(localTime);
+                                        extendContactServer.insertUpdate(extendContactModel, contactModel);
+                                    }
+                                }
                             }
                         }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
     }
 
 
@@ -172,15 +186,21 @@ public class AutoBackUpContactTask {
     @Async
     @Scheduled(fixedRate = 1000*60*60*2, initialDelay = 1000*60*30)
     public void backUpExtendGroup() {
-        ContactModel contactModel = new ContactModel(customConfig.getCorp());
-        List<ContactModel> contactModels = contactServer.getContacts(contactModel);
-        if (null != contactModels && contactModels.size() > 0) {
-            for (ContactModel contact : contactModels) {
-                String userId = contact.getUserid();
-                logger.debug("get user chat_id from user id  is " + userId);
-                GroupDataProcess.groupGetChatId(groupServer,customConfig,userId, getExtendToken());
+        List<CorpModel> corpModels = corpServer.getCorpModels();
+        if (null != corpModels && corpModels.size() > 0) {
+            for (CorpModel corpModel : corpModels) {
+                ContactModel contactModel = new ContactModel(corpModel.getCorp());
+                List<ContactModel> contactModels = contactServer.getContacts(contactModel);
+                if (null != contactModels && contactModels.size() > 0) {
+                    for (ContactModel contact : contactModels) {
+                        String userId = contact.getUserid();
+                        logger.debug("get user chat_id from user id  is " + userId);
+                        GroupDataProcess.groupGetChatId(groupServer,corpModel.getCorp(),userId, getExtendToken(corpModel.getCorp()));
+                    }
+                }
             }
         }
+
      }
 
 

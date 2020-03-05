@@ -8,6 +8,7 @@ package com.work.wx.controller.api.token;
 
 import com.google.gson.Gson;
 import com.work.wx.config.CustomConfig;
+import com.work.wx.controller.modle.CorpModel;
 import com.work.wx.controller.modle.TokenModel;
 import com.work.wx.server.TokenServer;
 import okhttp3.OkHttpClient;
@@ -24,15 +25,15 @@ public class ContactAccessToken {
 
     public static final String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/gettoken";
 
-    public String getContactAccessToken(TokenServer tokenServer,CustomConfig customConfig) {
-        TokenModel tokenModel = tokenServer.getTokenModel(new TokenModel(customConfig.getCorp(),CONTACT_TOKEN_TYPE));
+    public String getContactAccessToken(TokenServer tokenServer, CorpModel corpModel) {
+        TokenModel tokenModel = tokenServer.getTokenModel(new TokenModel(corpModel.getCorp(),CONTACT_TOKEN_TYPE));
         if (null != tokenModel) {
             if (tokenModel.getLoseTime() > System.currentTimeMillis()) {
                 return tokenModel.getAccess_token();
             }
         }
-        boolean status = requestContactToken(tokenServer,customConfig);
-        return status ? getContactAccessToken(tokenServer,customConfig) : "";
+        boolean status = requestContactToken(tokenServer,corpModel);
+        return status ? getContactAccessToken(tokenServer,corpModel) : "";
     }
 
 
@@ -43,8 +44,8 @@ public class ContactAccessToken {
 
 
 
-    private boolean requestContactToken(TokenServer tokenServer,CustomConfig customConfig) {
-        String url = BASE_ADDRESS + "?" + "corpid=" + customConfig.getCorp() +"&" + "corpsecret=" + customConfig.getContactSecret();
+    private boolean requestContactToken(TokenServer tokenServer,CorpModel corpModel) {
+        String url = BASE_ADDRESS + "?" + "corpid=" + corpModel.getCorp() +"&" + "corpsecret=" + corpModel.getContactSecret();
 
         try {
             Response response = new OkHttpClient().newCall(new Request.Builder().url(url).get().build()).execute();
@@ -53,9 +54,9 @@ public class ContactAccessToken {
                 if (tokenModel.getErrcode() == 0) {
                     logger.debug(tokenModel.toString());
                     tokenModel.setLoseTime(System.currentTimeMillis() + tokenModel.getExpires_in() * 1000);
-                    tokenModel.setCorpId(customConfig.getCorp());
+                    tokenModel.setCorpId(corpModel.getCorp());
                     tokenModel.setToken_type(CONTACT_TOKEN_TYPE);
-                    setContactAcessToken(new TokenModel(customConfig.getCorp(),CONTACT_TOKEN_TYPE),tokenModel,tokenServer);
+                    setContactAcessToken(new TokenModel(corpModel.getCorp(),CONTACT_TOKEN_TYPE),tokenModel,tokenServer);
                     return true;
                 }
             }

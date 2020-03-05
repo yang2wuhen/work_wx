@@ -14,53 +14,8 @@ import org.springframework.stereotype.Component;
 public class CustomConfig {
 
     private String corp;
-    private String adminId;
-    private String applicationSecret;
-    private String contactSecret;
-    private String externalContactSecret;
     private String providerSecret;
-    private String auditSecret;
 
-    public String getAdminId() {
-        return adminId;
-    }
-
-    public void setAdminId(String adminId) {
-        this.adminId = adminId;
-    }
-
-    public String getCorp() {
-        return corp;
-    }
-
-    public void setCorp(String corp) {
-        this.corp = corp;
-    }
-
-
-    public String getApplicationSecret() {
-        return applicationSecret;
-    }
-
-    public void setApplicationSecret(String applicationSecret) {
-        this.applicationSecret = applicationSecret;
-    }
-
-    public String getContactSecret() {
-        return contactSecret;
-    }
-
-    public void setContactSecret(String contactSecret) {
-        this.contactSecret = contactSecret;
-    }
-
-    public String getExternalContactSecret() {
-        return externalContactSecret;
-    }
-
-    public void setExternalContactSecret(String externalContactSecret) {
-        this.externalContactSecret = externalContactSecret;
-    }
 
     public String getProviderSecret() {
         return providerSecret;
@@ -70,11 +25,11 @@ public class CustomConfig {
         this.providerSecret = providerSecret;
     }
 
-    public String getAuditSecret() {
-        return auditSecret;
+    public String getCorp() {
+        return corp;
     }
 
-    public void setAuditSecret(String auditSecret) {
-        this.auditSecret = auditSecret;
+    public void setCorp(String corp) {
+        this.corp = corp;
     }
 }

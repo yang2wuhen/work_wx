@@ -9,8 +9,10 @@ package com.work.wx.task;
 import com.mongodb.client.gridfs.GridFSUploadStream;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.controller.modle.ChatModel;
+import com.work.wx.controller.modle.CorpModel;
 import com.work.wx.controller.modle.FileModel;
 import com.work.wx.server.ChatServer;
+import org.hibernate.validator.cfg.context.CrossParameterConstraintMappingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,10 +22,10 @@ import java.util.List;
 public class MultiDataProcess {
     private final static Logger logger = LoggerFactory.getLogger(MultiDataProcess.class);
 
-    public void FileTypeProcess(ChatServer chatServer, CustomConfig customConfig) {
+    public void FileTypeProcess(ChatServer chatServer, CorpModel corpModel) {
         String mediaType[] = new String[] {"image","voice","video","file","emotion"};
         for (String type : mediaType) {
-            ChatModel chatModel = new ChatModel(customConfig.getCorp());
+            ChatModel chatModel = new ChatModel(corpModel.getCorp());
             chatModel.setMark(false);
             chatModel.setMsgtype(type);
             List list = chatServer.getChatList(chatModel);
@@ -34,11 +36,11 @@ public class MultiDataProcess {
                     ChatModel model = (ChatModel) iterator.next();
                     FileModel fileModel = getFileModel(model);
                     GridFSUploadStream uploadStream = chatServer.insertChatData(fileModel);
-                    boolean flag = AuditBackUpUtil.getMediaData(customConfig,uploadStream,"", fileModel.getFileSDKField());
+                    boolean flag = AuditBackUpUtil.getMediaData(corpModel,uploadStream,"", fileModel.getFileSDKField());
                     if (flag) {
                         logger.debug("update chat model msgId "+model.getMsgid());
                         model.setMark(true);
-                        ChatModel queryModel = new ChatModel(customConfig.getCorp());
+                        ChatModel queryModel = new ChatModel(corpModel.getCorp());
                         queryModel.setMsgid(model.getMsgid());
                         chatServer.updateChat(queryModel, model);
                     }

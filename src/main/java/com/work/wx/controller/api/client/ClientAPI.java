@@ -12,6 +12,7 @@ import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ApplicationAccessToken;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ProviderAccessToken;
+import com.work.wx.server.CorpServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.ErrorTip;
 import com.work.wx.tips.Tip;
@@ -30,6 +31,7 @@ public class ClientAPI {
     private final static Logger logger = LoggerFactory.getLogger(ClientAPI.class);
 
     private TokenServer tokenServer;
+    private CorpServer corpServer;
     private CustomConfig customConfig;
 
     @Autowired
@@ -38,12 +40,17 @@ public class ClientAPI {
     }
 
     @Autowired
+    public void setCorpServer(CorpServer corpServer) {
+        this.corpServer = corpServer;
+    }
+
+    @Autowired
     public void setTokenServer(TokenServer tokenServer) {
         this.tokenServer = tokenServer;
     }
 
-    private String getToken() {
-        return new ApplicationAccessToken().getApplicationAccessToken(tokenServer,customConfig);
+    private String getToken(String corpId) {
+        return new ApplicationAccessToken().getApplicationAccessToken(tokenServer,corpServer.getCorpModel(corpId));
     }
 
     private String getProviderToken() {
@@ -62,11 +69,11 @@ public class ClientAPI {
     @ApiOperation("根据客户端code获取userId")
     @ResponseBody
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
-    public Tip getUserInfo(@RequestParam("code") String code) {
+    public Tip getUserInfo(@RequestParam("cropId") String corpId, @RequestParam("code") String code) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo";
         ParameterMap parameterMap = new ParameterMap();
         parameterMap.put("code",code);
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(corpId),parameterMap);
     }
 
 

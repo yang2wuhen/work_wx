@@ -12,6 +12,7 @@ import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.MsgAuditAccessToken;
 import com.work.wx.controller.modle.ChatModel;
 import com.work.wx.server.ChatServer;
+import com.work.wx.server.CorpServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.SuccessTip;
 import com.work.wx.tips.Tip;
@@ -43,11 +44,11 @@ public class ChatAPI {
 
     private TokenServer tokenServer;
     private ChatServer chatServer;
-    private CustomConfig customConfig;
+    private CorpServer corpServer;
 
     @Autowired
-    public void setCustomConfig(CustomConfig customConfig) {
-        this.customConfig = customConfig;
+    public void setCorpServer(CorpServer corpServer) {
+        this.corpServer = corpServer;
     }
 
     @Autowired()
@@ -55,31 +56,33 @@ public class ChatAPI {
         this.chatServer = chatServer;
     }
 
+    @Autowired()
     public void setTokenServer(TokenServer tokenServer) {
         this.tokenServer = tokenServer;
     }
 
-    private String getToken() {
-        return new MsgAuditAccessToken().getMSGAUDITAccessToken(tokenServer,customConfig);
+
+    private String getToken(String corpId) {
+        return new MsgAuditAccessToken().getMSGAUDITAccessToken(tokenServer,corpServer.getCorpModel(corpId));
     }
 
 
     @ApiOperation("群聊获取会话同意情况")
     @ResponseBody
     @RequestMapping(value = "/checkRoomAgree",method = RequestMethod.POST)
-    public Tip checkRoomAgree(@RequestParam("roomid") String roomid){
+    public Tip checkRoomAgree(@RequestParam("cropId") String corpId,@RequestParam("roomid") String roomid){
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/msgaudit/check_room_agree";
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("roomid",roomid);
-        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(), jsonObject.toString());
+        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(corpId), jsonObject.toString());
     }
 
 
     @ApiOperation("获取会话人员列表")
     @ResponseBody
     @RequestMapping(value = "/getChatUsers",method = RequestMethod.POST)
-    public Tip getChatUsers(){
-        ChatModel chatModel = new ChatModel(customConfig.getCorp());
+    public Tip getChatUsers(@RequestParam("corpId") String corpId){
+        ChatModel chatModel = new ChatModel(corpId);
         chatModel.setRoomid("");
         chatModel.setMark(null);
         List chatModelList = chatServer.getUserList(chatModel,"from","seq");
@@ -90,8 +93,8 @@ public class ChatAPI {
     @ApiOperation("获取群聊人员列表")
     @ResponseBody
     @RequestMapping(value = "/getChatRooms",method = RequestMethod.POST)
-    public Tip getChatRooms(){
-        ChatModel chatModel = new ChatModel(customConfig.getCorp());
+    public Tip getChatRooms(@RequestParam("corpId") String corpId){
+        ChatModel chatModel = new ChatModel(corpId);
         chatModel.setMark(null);
         List chatModelList = chatServer.getRoomList(chatModel,"from","seq","roomid");
         return new SuccessTip(chatModelList);
@@ -101,8 +104,9 @@ public class ChatAPI {
     @ApiOperation("获取会话人员聊天详情")
     @ResponseBody
     @RequestMapping(value = "/getChatUserRecord",method = RequestMethod.POST)
-    public Tip getChatUserRecord(@RequestParam("userId") String userId,@RequestParam("chatUser") String chatUser){
-        List chatModelList = chatServer.getChatList(customConfig.getCorp(), userId, chatUser);
+    public Tip getChatUserRecord(@RequestParam("corpId") String corpId,@RequestParam("userId") String userId,
+                                 @RequestParam("chatUser") String chatUser){
+        List chatModelList = chatServer.getChatList(corpId, userId, chatUser);
         return new SuccessTip(chatModelList);
     }
 
@@ -110,8 +114,8 @@ public class ChatAPI {
     @ApiOperation("获取群会话详情")
     @ResponseBody
     @RequestMapping(value = "/getChatRoom",method = RequestMethod.POST)
-    public Tip getChatRoom(@RequestParam("roomId") String roomId){
-        ChatModel chatModel = new ChatModel(customConfig.getCorp());
+    public Tip getChatRoom(@RequestParam("corpId") String corpId,@RequestParam("roomId") String roomId){
+        ChatModel chatModel = new ChatModel(corpId);
         chatModel.setRoomid(roomId);
         List<ChatModel> chatModels = chatServer.getChatList(chatModel);
         return new SuccessTip(chatModels);

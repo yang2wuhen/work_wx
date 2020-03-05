@@ -13,6 +13,7 @@ import com.work.wx.controller.api.WXAPI;
 import com.work.wx.controller.api.token.ContactAccessToken;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.modle.TokenModel;
+import com.work.wx.server.CorpServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.ErrorTip;
 import com.work.wx.tips.SuccessTip;
@@ -36,11 +37,11 @@ public class ContactAPI {
     private final static Logger logger = LoggerFactory.getLogger(ContactAPI.class);
 
     private TokenServer tokenServer;
-    private CustomConfig customConfig;
+    private CorpServer corpServer;
 
     @Autowired
-    public void setCustomConfig(CustomConfig customConfig) {
-        this.customConfig = customConfig;
+    public void setCorpServer(CorpServer corpServer) {
+        this.corpServer = corpServer;
     }
 
     @Autowired
@@ -49,8 +50,8 @@ public class ContactAPI {
     }
 
 
-    private String getToken() {
-        return new ContactAccessToken().getContactAccessToken(tokenServer,customConfig);
+    private String getToken(String cropId) {
+        return new ContactAccessToken().getContactAccessToken(tokenServer,corpServer.getCorpModel(cropId));
     }
 
     /**
@@ -64,12 +65,12 @@ public class ContactAPI {
     @ApiOperation("读取成员")
     @ResponseBody
     @RequestMapping(value = "/getContactUser",method = RequestMethod.POST)
-    public Tip getContactUser(@RequestParam("userId") String userId) {
+    public Tip getContactUser(@RequestParam("cropId") String cropId,@RequestParam("userId") String userId) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/get";
 
         ParameterMap parameterMap = new ParameterMap();
         parameterMap.put("userid",userId);
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(cropId),parameterMap);
     }
 
 
@@ -84,11 +85,11 @@ public class ContactAPI {
     @ApiOperation("获取部门")
     @ResponseBody
     @RequestMapping(value = "/getDepartment",method = RequestMethod.POST)
-    public Tip getDepartment(@RequestParam(value = "id",required = false) String id ) {
+    public Tip getDepartment(@RequestParam("cropId") String cropId,@RequestParam(value = "id",required = false) String id ) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/department/list";
         ParameterMap parameterMap = new ParameterMap();
         parameterMap.put("id",id);
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(cropId),parameterMap);
     }
 
 
@@ -104,12 +105,13 @@ public class ContactAPI {
     @ApiOperation("获取部门成员")
     @ResponseBody
     @RequestMapping(value = "/getSimplelist",method = RequestMethod.POST)
-    public Tip getSimplelist(@RequestParam("department_id") String department_id,@RequestParam("fetch_child") int fetch_child) {
+    public Tip getSimplelist(@RequestParam("cropId") String cropId,@RequestParam("department_id") String department_id,
+                             @RequestParam("fetch_child") int fetch_child) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist";
         ParameterMap parameterMap = new ParameterMap();
         parameterMap.put("department_id",department_id);
         parameterMap.put("fetch_child",fetch_child);
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(cropId),parameterMap);
     }
 
 
@@ -126,12 +128,13 @@ public class ContactAPI {
     @ApiOperation("获取部门成员详情")
     @ResponseBody
     @RequestMapping(value = "/getList",method = RequestMethod.POST)
-    public Tip getList(@RequestParam("department_id") String department_id,@RequestParam("fetch_child") int fetch_child) {
+    public Tip getList(@RequestParam("cropId") String cropId,@RequestParam("department_id") String department_id,
+                       @RequestParam("fetch_child") int fetch_child) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/user/list";
         ParameterMap parameterMap = new ParameterMap();
         parameterMap.put("department_id",department_id);
         parameterMap.put("fetch_child",fetch_child);
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(cropId),parameterMap);
     }
 
 

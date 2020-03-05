@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
+import com.work.wx.controller.modle.CorpModel;
 import com.work.wx.controller.modle.TokenModel;
 import com.work.wx.server.TokenServer;
 import okhttp3.OkHttpClient;
@@ -31,7 +32,7 @@ public class ProviderAccessToken {
 
 
 
-    public String getProviderAccessToken(TokenServer tokenServer,CustomConfig customConfig) {
+    public String getProviderAccessToken(TokenServer tokenServer, CustomConfig customConfig) {
         TokenModel tokenModel = tokenServer.getTokenModel(new TokenModel(customConfig.getCorp(),CONTACT_TOKEN_TYPE));
         if (null != tokenModel) {
             if (tokenModel.getLoseTime() > System.currentTimeMillis()) {

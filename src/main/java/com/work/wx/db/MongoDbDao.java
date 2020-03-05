@@ -103,6 +103,15 @@ public abstract class MongoDbDao<T> {
 
 
     /**
+     * 根据条件查询集合
+     *
+     * @return
+     */
+    public List<T> queryList() {
+        return mongoTemplate.findAll(this.getEntityClass());
+    }
+
+    /**
      * 根据条件查询只返回一个文档
      *
      * @param object
@@ -121,10 +130,8 @@ public abstract class MongoDbDao<T> {
      */
     public T queryOneDesc(T object,String field) {
         Query query = getQueryByObjectDesc(object,field);
-        logger.debug(query.toString());
         return mongoTemplate.findOne(query, this.getEntityClass());
     }
-
 
 
 

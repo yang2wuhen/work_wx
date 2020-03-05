@@ -13,6 +13,7 @@ import com.work.wx.config.CustomConfig;
 import com.work.wx.config.RequestUtil;
 import com.work.wx.controller.api.token.ExternalContactAccessToken;
 import com.work.wx.controller.modle.FollowModel;
+import com.work.wx.server.CorpServer;
 import com.work.wx.server.FollowServer;
 import com.work.wx.server.TokenServer;
 import com.work.wx.tips.ErrorTip;
@@ -39,11 +40,11 @@ public class FollowContactAPI {
 
     private TokenServer tokenServer;
     private FollowServer followServer;
-    private CustomConfig customConfig;
+    private CorpServer corpServer;
 
     @Autowired
-    public void setCustomConfig(CustomConfig customConfig) {
-        this.customConfig = customConfig;
+    public void setCorpServer(CorpServer corpServer) {
+        this.corpServer = corpServer;
     }
 
     @Autowired
@@ -57,26 +58,26 @@ public class FollowContactAPI {
     }
 
 
-    private String getToken() {
-        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,customConfig);
+    private String getToken(String corpId) {
+        return new ExternalContactAccessToken().getExternalContactAccessToken(tokenServer,corpServer.getCorpModel(corpId));
     }
 
 
     @ApiOperation("获取配置了客户联系功能的成员列表")
     @ResponseBody
     @RequestMapping(value = "/getFollowUserList",method = RequestMethod.POST)
-    public Tip getFollowUserList() {
+    public Tip getFollowUserList(@RequestParam("cropId") String corpId) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_follow_user_list";
         ParameterMap parameterMap = new ParameterMap();
-        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(),parameterMap);
+        return new RequestUtil().requestGettDone(BASE_ADDRESS, getToken(corpId),parameterMap);
     }
 
 
     @ApiOperation("获取企业已配置的「联系我」方式")
     @ResponseBody
     @RequestMapping(value = "/getFollowWay",method = RequestMethod.POST)
-    public Tip getFollowWay() {
-        List followModels = followServer.getAllFollowConfig(new FollowModel(customConfig.getCorp()));
+    public Tip getFollowWay(@RequestParam("cropId") String corpId) {
+        List followModels = followServer.getAllFollowConfig(new FollowModel(corpId));
         if (null != followModels && followModels.size() > 0) {
             return new SuccessTip(followModels);
         }
@@ -87,18 +88,18 @@ public class FollowContactAPI {
     @ApiOperation("配置客户联系「联系我」方式")
     @ResponseBody
     @RequestMapping(value = "/addContactWay",method = RequestMethod.POST)
-    public Tip addContactWay(@RequestBody FollowModel followModel) {
+    public Tip addContactWay(@RequestParam("cropId") String corpId,@RequestBody FollowModel followModel) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_contact_way";
         String json = new Gson().toJson(followModel);
         try {
-            String result =  new RequestUtil().requestJsonPost(BASE_ADDRESS, getToken(),json);
+            String result =  new RequestUtil().requestJsonPost(BASE_ADDRESS, getToken(corpId),json);
             if (null != result) {
                 int code = JsonParser.parseString(result).getAsJsonObject().get("errcode").getAsInt();
                 if (code == 0) {
                     String configId = JsonParser.parseString(result).getAsJsonObject().get("config_id").getAsString();
                     followModel.setConfig_id(configId);
-                    followModel.setCropId(customConfig.getCorp());
-                    boolean flag = followServer.updateFollowConfig(new FollowModel(customConfig.getCorp()),followModel) > 0;
+                    followModel.setCropId(corpId);
+                    boolean flag = followServer.updateFollowConfig(new FollowModel(corpId),followModel) > 0;
                     if (flag) {
                         return  new SuccessTip(followModel);
                     }
@@ -115,18 +116,18 @@ public class FollowContactAPI {
     @ApiOperation("更新企业已配置的「联系我」方式")
     @ResponseBody
     @RequestMapping(value = "/updateContactWay",method = RequestMethod.POST)
-    public Tip updateContactWay(@RequestBody FollowModel followModel) {
+    public Tip updateContactWay(@RequestParam("cropId") String corpId, @RequestBody FollowModel followModel) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/update_contact_way";
         String json = new Gson().toJson(followModel);
         try {
-            String result =  new RequestUtil().requestJsonPost(BASE_ADDRESS, getToken(),json);
+            String result =  new RequestUtil().requestJsonPost(BASE_ADDRESS, getToken(corpId),json);
             if (null != result) {
                 int code = JsonParser.parseString(result).getAsJsonObject().get("errcode").getAsInt();
                 if (code == 0) {
                     String configId = JsonParser.parseString(result).getAsJsonObject().get("config_id").getAsString();
                     followModel.setConfig_id(configId);
-                    followModel.setCropId(customConfig.getCorp());
-                    boolean flag = followServer.updateFollowConfig(new FollowModel(customConfig.getCorp(),
+                    followModel.setCropId(corpId);
+                    boolean flag = followServer.updateFollowConfig(new FollowModel(corpId,
                             followModel.getConfig_id()),followModel) > 0;
                     if (flag) {
                         return  new SuccessTip(followModel);
@@ -144,11 +145,11 @@ public class FollowContactAPI {
     @ApiOperation("config_id「联系我」方式")
     @ResponseBody
     @RequestMapping(value = "/getFollowWayById",method = RequestMethod.POST)
-    public Tip getFollowWayById(@RequestParam String configId) {
+    public Tip getFollowWayById(@RequestParam("cropId") String corpId,@RequestParam String configId) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way";
         JsonObject json = new JsonObject();
         json.addProperty("config_id", configId);
-        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(),json.toString());
+        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(corpId),json.toString());
     }
 
 
@@ -156,11 +157,11 @@ public class FollowContactAPI {
     @ApiOperation("删除企业已配置的「联系我」方式")
     @ResponseBody
     @RequestMapping(value = "/delFollowWayById",method = RequestMethod.POST)
-    public Tip delFollowWayById(@RequestParam String configId) {
+    public Tip delFollowWayById(@RequestParam("cropId") String corpId,@RequestParam String configId) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/del_contact_way";
         JsonObject json = new JsonObject();
         json.addProperty("config_id", configId);
-        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(),json.toString());
+        return new RequestUtil().requestJsonPostDone(BASE_ADDRESS, getToken(corpId),json.toString());
     }
 
 

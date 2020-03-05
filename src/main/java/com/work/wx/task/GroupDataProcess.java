@@ -22,14 +22,13 @@ public class GroupDataProcess {
      * @todo
      * @author wuhen
      * @param groupServer :
-     * @param customConfig :
      * @param userId :
      * @param extendToken :
      * @returns void
      * @throws
      * @date 2020/2/19 20:13
      */
-    public static void groupGetChatId(GroupServer groupServer,CustomConfig customConfig,String userId,String extendToken) {
+    public static void groupGetChatId(GroupServer groupServer,String corpId,String userId,String extendToken) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/list";
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("status_filter", 0);
@@ -52,7 +51,7 @@ public class GroupDataProcess {
                             String chatId = object.get("chat_id").getAsString();
                             logger.debug("get chat room detail from chat_id is "+chatId);
                             int status = object.get("status").getAsInt();
-                            groupChatProcess(groupServer,chatId,status, customConfig, extendToken);
+                            groupChatProcess(groupServer,chatId,status, corpId, extendToken);
                         }
                     }
                 }
@@ -69,13 +68,12 @@ public class GroupDataProcess {
      * @param groupServer :
      * @param chatId :
      * @param status :
-     * @param customConfig :
      * @param token :
      * @returns void
      * @throws
      * @date 2020/2/19 20:13
      */
-    private static void groupChatProcess(GroupServer groupServer,String chatId, int status, CustomConfig customConfig, String token) {
+    private static void groupChatProcess(GroupServer groupServer,String chatId, int status, String corpId, String token) {
         String BASE_ADDRESS = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/get";
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("chat_id", chatId);
@@ -86,10 +84,10 @@ public class GroupDataProcess {
                 if (resultRes.get("errcode").getAsInt() == 0) {
                     logger.debug(response);
                     GroupModel groupModel = new Gson().fromJson(resultRes.get("group_chat").getAsJsonObject(), GroupModel.class);
-                    groupModel.setCorp(customConfig.getCorp());
+                    groupModel.setCorp(corpId);
                     groupModel.setStatus(status);
                     groupModel.setInsertTime(System.currentTimeMillis());
-                    GroupModel queryGroupModel = new GroupModel(customConfig.getCorp(),chatId);
+                    GroupModel queryGroupModel = new GroupModel(corpId,chatId);
                     groupServer.insertUpdateGroupModel(queryGroupModel, groupModel);
                 }
             }
