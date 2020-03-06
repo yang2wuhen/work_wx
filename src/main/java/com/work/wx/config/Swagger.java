@@ -30,7 +30,8 @@ public class Swagger {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())//调用apiInfo方法,创建一个ApiInfo实例,里面是展示在文档页面信息内容
                 .tags(new Tag("contact", "通讯录管理"),new Tag("token","token管理"),new Tag("externalContact", "外部联系人管理"),
-                        new Tag("client", "客户端接口"),new Tag("chat", "归档记录"),new Tag("followContact", "客户联系"))
+                        new Tag("client", "客户端接口"),new Tag("chat", "归档记录"),new Tag("followContact", "客户联系"),
+                        new Tag("corp", "企业接口"))
                 .select()
                 //控制暴露出去的路径下的实例
                 //如果某个接口不想暴露,可以使用以下注解

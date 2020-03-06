@@ -17,11 +17,13 @@ public interface CorpServer {
 
     public CorpModel getCorpModel(CorpModel corpModel);
 
-    public void insertCorpModel(CorpModel queryCorpModel, CorpModel corpModel);
+    public void insertCorpModel(CorpModel corpModel);
 
     public CorpModel getCorpModel(String corpId);
 
     public List<CorpModel> getCorpModels();
+
+    public void addCorpModel(CorpModel corpModel);
 
 
 }

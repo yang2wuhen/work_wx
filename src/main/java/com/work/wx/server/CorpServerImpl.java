@@ -35,8 +35,8 @@ public class CorpServerImpl implements CorpServer {
 
 
     @Override
-    public void insertCorpModel(CorpModel queryCorpModel, CorpModel corpModel) {
-        corpDbDao.updateInsert(queryCorpModel, corpModel);
+    public void insertCorpModel(CorpModel corpModel) {
+        corpDbDao.updateInsert(new CorpModel(corpModel.getCorp()), corpModel);
     }
 
     @Override
@@ -47,5 +47,10 @@ public class CorpServerImpl implements CorpServer {
     @Override
     public List<CorpModel> getCorpModels() {
         return corpDbDao.queryList();
+    }
+
+    @Override
+    public void addCorpModel(CorpModel corpModel) {
+        corpDbDao.insert(corpModel);
     }
 }

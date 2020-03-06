@@ -63,7 +63,7 @@ public class WXAPI  {
     }
 
 
-    @ApiOperation("获取三方应用Token")
+    @ApiOperation("获取APP应用Token")
     @ResponseBody
     @RequestMapping(value = "/getApplicationWXToken",method = RequestMethod.POST)
     public Tip getApplicationWXToken(@RequestParam("corp") String corpId) {
